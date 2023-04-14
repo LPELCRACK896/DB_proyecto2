@@ -1,25 +1,28 @@
-import logo from './logo.svg';
+import { render } from "react-dom";
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
+import React from 'react';
+import { BrowserRouter, Routes, Route} from "react-router-dom"
+import { Home } from './Pages';
+
+const rootElement = document.getElementById("root");
+const NotFound = () => <h1>404: Page Not Found</h1>;
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+  render(
+    
+    <BrowserRouter>
+      <Routes>
+        {/* Pagina principal */}
+        <Route path="/" element={<Home />} />
+        
+      </Routes>
+    </BrowserRouter>,
+  rootElement
   );
+  
+  
 }
 
 export default App;
+
