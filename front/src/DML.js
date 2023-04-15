@@ -1,4 +1,5 @@
 import './App.css';
+import DDL from './DDL';
 
 function DML() {
   return (
@@ -11,10 +12,10 @@ function DML() {
       <div className="container m-0">
       <div className="nav-bar">
         <ul>
-        <button className='DDL'>
+        <button className='botonp' onClick={DDL}>
           DDL
         </button>
-        <button className='botonp'>
+        <button className='DDL'>
           DML
         </button>
         <button className='botonp'>
@@ -26,33 +27,33 @@ function DML() {
 
     {/* CONTENIDOOOO */}
       <div className='contenido'>
-        <h1 className='titulo'>DDL</h1>
+        <h1 className='titulo'>DML</h1>
       <button className='pagDML'>
-        create
+        put
       </button>
       <button className='pagDML'>
-        list
+        get
       </button>
       <button className='pagDML'>
-        disable
+        scan
       </button>
       <button className='pagDML'>
-        enable
+        delete
       </button>
       <button className='pagDML'>
-        is_enable
+        deleteall
       </button>
       <button className='pagDML'>
-        alter
+        count
       </button>
       <button className='pagDML'>
-        drop
+        truncate
       </button>
       <button className='pagDML'>
-        drop all
+        updateMany
       </button>
       <button className='pagDML'>
-        Describe
+        insertMany
       </button>
       <p className='parapapa'>Descripcion de parametros</p>
       <input className='parametroinput'></input>
