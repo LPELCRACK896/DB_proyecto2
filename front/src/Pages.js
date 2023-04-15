@@ -18,7 +18,7 @@ export const Page2 = () => {
   
   return (
     <div >
-        <DDL/>
+        <DML/>
     </div>
   );
 };

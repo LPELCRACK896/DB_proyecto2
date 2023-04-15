@@ -1,30 +1,10 @@
-.App {
-  text-align: center;
+.titulo{
+  align-content: start;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-/* .App-header {
-  background-color: #ffffff;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: black;
-} */
 .CR{
-  align-content: center;
+  text-align: center;
   height: 5vh;
   background-color: rgb(86, 22, 22);
   color: white;
@@ -39,7 +19,7 @@
 }
 
 .DDL{
-  background-color: rgb(151, 50, 50);
+  background-color: rgb(176, 73, 73);
   color: white;
   padding-left: 40px;
   padding-right: 40px;
@@ -48,12 +28,78 @@
   margin: 20px;
   border-radius: 20px;
 }
+/* Boton principal */
 .botonp{
-  background-color: gray;
+  background-color: rgb(180, 180, 180);
   padding-left: 40px;
   padding-right: 40px;
   padding-top: 20px;
   padding-bottom: 20px;
   margin: 20px;
   border-radius: 20px;
+}
+
+.nombrepag{
+  text-align: start;
+}
+
+
+.container {
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+  height: 100%;
+}
+
+.nav-bar {
+  background-color: #ffffff;
+  color: #fff;
+  padding: 20px;
+  margin: 20px;
+}
+
+.nav-bar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.nav-bar li {
+  margin: 10px 0;
+}
+
+.nav-bar a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.content {
+  padding: 20px;
+}
+
+.pagDDL{
+  margin: 20px;
+  padding-left: 40px;
+  padding-right: 40px;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  background-color: gray;
+  border-radius: 20px;
+}
+
+.contenido{
+  align-content: start;
+}
+
+.parapapa{
+  font-size: 25px;
+}
+
+.parametroinput{
+  width: 560px;
+}
+
+.correr{
+  padding-left: 10px;
+  padding-right: 10px;
+  margin-left: 20px;
 }
