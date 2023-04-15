@@ -1,5 +1,5 @@
 import './App.css';
-import DDL from './DDL';
+import { Link, useParams } from "react-router-dom";
 
 function DML() {
   return (
@@ -12,9 +12,11 @@ function DML() {
       <div className="container m-0">
       <div className="nav-bar">
         <ul>
-        <button className='botonp' onClick={DDL}>
+        <Link to='/#'>
+            <button className='botonp'>
           DDL
         </button>
+        </Link>
         <button className='DDL'>
           DML
         </button>

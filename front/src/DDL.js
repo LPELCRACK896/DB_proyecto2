@@ -1,4 +1,5 @@
 import './App.css';
+import { Link, useParams } from "react-router-dom";
 
 function DDL() {
   return (
@@ -14,9 +15,11 @@ function DDL() {
         <button className='DDL'>
           DDL
         </button>
+        <Link to='/DML'>
         <button className='botonp'>
-          DML
+        DML
         </button>
+        </Link>
         <button className='botonp'>
           Extra
         </button>
