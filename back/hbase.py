@@ -141,8 +141,11 @@ class Table:
         
 
     def insert(self, row_key, column_family, column, value, timestamp):
-        self.region.insert(row_key, column_family, column, value, timestamp)
-
+        if self.isable:
+            self.region.insert(row_key, column_family, column, value, timestamp)
+        else:
+            return 404, "Enable table to insert data, table is disabled."
+    
     def get(self, row_key, column_family, column):
         if self.isable:
             return self.region.get(row_key, column_family, column)
