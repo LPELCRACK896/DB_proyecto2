@@ -1,7 +1,13 @@
 import './App.css';
 import { Link, useParams } from "react-router-dom";
+import React, { useState } from "react";
 
 function DML() {
+  const [selectedButton, setSelectedButton] = useState("");
+
+  const handleClick = (buttonText) => {
+    setSelectedButton(buttonText);
+  };
   return (
     // NAVBAR A LA IZQUIERDA
     <div className="App">
@@ -30,34 +36,34 @@ function DML() {
     {/* CONTENIDOOOO */}
       <div className='contenido'>
         <h1 className='titulo'>DML</h1>
-      <button className='pagDML'>
+      <button className='pagDML' onClick={() => handleClick("Parametros para put")}>
         put
       </button>
-      <button className='pagDML'>
+      <button className='pagDML'onClick={() => handleClick("Parametros para get")}>
         get
       </button>
-      <button className='pagDML'>
+      <button className='pagDML'onClick={() => handleClick("Parametros para scan")}>
         scan
       </button>
-      <button className='pagDML'>
+      <button className='pagDML'onClick={() => handleClick("Parametros para delete")}>
         delete
       </button>
-      <button className='pagDML'>
+      <button className='pagDML'onClick={() => handleClick("Parametros para delete all")}>
         deleteall
       </button>
-      <button className='pagDML'>
+      <button className='pagDML'onClick={() => handleClick("Parametros para count")}>
         count
       </button>
-      <button className='pagDML'>
+      <button className='pagDML'onClick={() => handleClick("Parametros para truncate")}>
         truncate
       </button>
-      <button className='pagDML'>
+      <button className='pagDML'onClick={() => handleClick("Parametros para update many")}>
         updateMany
       </button>
-      <button className='pagDML'>
+      <button className='pagDML'onClick={() => handleClick("Parametros para insert many")}>
         insertMany
       </button>
-      <p className='parapapa'>Descripcion de parametros</p>
+      <p className='parapapa'>{selectedButton}</p>
       <input className='parametroinput'></input>
       <button className='correr'>
         RUN
