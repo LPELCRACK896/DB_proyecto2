@@ -1,13 +1,16 @@
 from collections import defaultdict
 import json 
 import re
+import time
 
 class Master:
     def __init__(self):
         self.tables = defaultdict(Table)
 
-    def insert(self, table_name, row_key, column_family, column, value):
-        self.tables[table_name].insert(row_key, column_family, column, value)
+    def insert(self, table_name, row_key, column_family, column, value, timestamp=None):
+        if timestamp is None:
+            timestamp = int(time.time() * 1000)
+        self.tables[table_name].insert(row_key, column_family, column, value, timestamp)
 
     def __filtr_ddl_list(self, prefix=None):
         filtered_tables = dict(self.tables)
@@ -117,6 +120,11 @@ class Master:
         self.tables.clear()
         return 200, "All tables droped"
 
+    def describe(self, table_name) -> dict:
+        if table_name not in self.tables:
+            return 400, {"name": table_name, "state": None, "column_families": None}
+        table: Table  = self.tables[table_name]
+        return 200, {"name": table_name, "state": table.isable, "column_families": table.column_families}
 
 class Table:
     def __init__(self, column_families=None):
@@ -132,8 +140,8 @@ class Table:
         self.bloom_filter = None
         
 
-    def insert(self, row_key, column_family, column, value):
-        self.region.insert(row_key, column_family, column, value)
+    def insert(self, row_key, column_family, column, value, timestamp):
+        self.region.insert(row_key, column_family, column, value, timestamp)
 
     def get(self, row_key, column_family, column):
         if self.isable:
@@ -179,8 +187,8 @@ class Region:
     def __init__(self):
         self.rows = defaultdict(Row)
 
-    def insert(self, row_key, column_family, column, value):
-        self.rows[row_key].insert(column_family, column, value)
+    def insert(self, row_key, column_family, column, value, timestamp):
+        self.rows[row_key].insert(column_family, column, value, timestamp)
 
     def get(self, row_key, column_family, column):
         return self.rows[row_key].get(column_family, column)
@@ -197,15 +205,22 @@ class Row:
 
 class Cell:
     def __init__(self):
-        self.key_values = []
+        self.versions = []
 
-    def insert(self, value):
-        self.key_values.append(KeyValue(value))
+    def put(self, value, timestamp):
+        self.versions.append({"value": value, "timestamp": timestamp})
+        self.versions.sort(key=lambda x: x["timestamp"], reverse=True)
 
-    def get(self):
-        if not self.key_values:
+    def get(self, timestamp=None):
+        if not self.versions:
             return None
-        return self.key_values[-1].value
+        if timestamp is None:
+            return self.versions[0]["value"]
+        for version in self.versions:
+            if version["timestamp"] <= timestamp:
+                return version["value"]
+        return None
+
 
 class KeyValue:
     def __init__(self, value):

@@ -51,7 +51,7 @@ def main():
     Return: 
         - Tuple: CODE, message
     """
-    print(hbase.enable("tabla_ejemplo2"))
+    print(hbase.enable("tabla_ejemplo"))
     
     """
     Is_Enabled
@@ -67,20 +67,53 @@ def main():
     print(hbase.is_enable("table"))    
     """
     Alter
+    Inputs ejemplos (FRONTEND):
+        -   <table_name>, {NAME: <column_family_name>, NEW_NAME: <new_column_family_name>}
+        -   <table_name>, {NAME: <column_family_name>, METHOD: delete}
+        -   <table_name>, {NAME: <column_family_name>, NEW_NAME: <new_column_family_name>}, {NAME: <column_family_name>, METHOD: delete}
+        -   <table_name>,  {NAME: <column_family_name>, METHOD: delete}, {NAME: <column_family_name>, NEW_NAME: <new_column_family_name>}
+    Parametros de funcion:
+        -   table_name: Nombre da la tabla
+        -   alters: Modificaciones a realiazar en forma de diccionarios con dos elementos. 
+    Return: 
+        - Tuple: Code, lista (contiene los resultados de las operaciones realizadas)
     """
+    print(hbase.all_alters("tabla_ejemplo", [{"NAME": "column_f_1", "NEW_NAME": "columna_1"}, {"NAME": "column_f_2", "METHOD": "delete"} ]))
+    #Solo para ver cambios
+    """
+    Describe
+    Inputs ejemplos (FRONTEND):
+        - <table_name>
+    Parametros de funcion:
+        - table_name: Nombre de tabla que se desea saber.
+    Return: 
+        - Tuple: CODE, diccionario con informacio de la tabla
+    """
+    print(hbase.describe("tabla_ejemplo"))
     
     """
     Drop
+    Inputs ejemplos (FRONTEND):
+        - <table_name>
+    Parametros de funcion:
+        - table_name: Nombre de tabla que se desea eliminar.
+    Return: 
+        - Tuple: CODE, message
     """
-    
+    print(hbase.drop("tabla_ejemplo2"))
     """
     Drop All
+    Inputs ejemplos (FRONTEND):
+        - (nada)
+    Parametros de funcion:
+        -  (nada)
+    Return: 
+        - Tuple: CODE, message
     """
-
+    print(hbase.drop_all())
+    #Comprueba que se borraron
+    print(hbase.ddl_list())
     
-    """
-    Describe
-    """
 
 
 if __name__ == "__main__":
