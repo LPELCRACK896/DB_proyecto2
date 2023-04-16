@@ -9,13 +9,28 @@ games = []
 # Generate fake video game data
 while count < 1000:
     game = {
-        "row_key": fake.uuid4(),
-        "game_info:game_name": fake.word(),
-        "game_info:genre": fake.word(),
-        "game_info:platform": fake.random_element(elements=('PC', 'PS4', 'Xbox One', 'Nintendo Switch')),
-        "game_info:release_year": fake.random_int(min=2000, max=2023),
+        
         "game_info:developer": fake.company(),
         "game_info:price": fake.pyfloat(left_digits=2, right_digits=2, positive=True)
+    }
+    game = {
+        fake.random_int(min=1000, max=9999): {
+            'game info': {
+                'Name': fake.word(),
+                'Genre': fake.word(),
+                'Plataform': fake.random_element(elements=('PC', 'PS4', 'Xbox One', 'Nintendo Switch')),
+                'Release_year': fake.random_int(min=2000, max=2023),
+                "price": fake.pyfloat(left_digits=2, right_digits=2, positive=True)
+            },
+            'Dev info': {
+                'Company': fake.company(),
+                'Workers': fake.random_int(min=1000, max=9999),
+            },
+            'product info': {
+                'Product ID': fake.random_int(min=1000, max=9999, step=1),
+                'Product description': fake.sentence(nb_words=10),
+            }
+        },
     }
     games.append(game)
     count += 1
