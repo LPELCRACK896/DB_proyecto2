@@ -34,7 +34,7 @@ while count <= 1000:
     lista.append(purchase_data)
 
 # Create JSON document from purchase data with indentation
-with open("data.json", "w") as f:
+with open("purchases.json", "w") as f:
     json.dump(lista, f, indent=4)
 
 # Print a message to confirm that the file was written
