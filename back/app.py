@@ -211,7 +211,8 @@ def truncate():
 def create():
     try:
 
-        input_str = request.args.get('param1')
+        input_str = request.args.get('query')
+        print(input_str)
 
         # Split the input string into parts
         parts = input_str.split(',')
@@ -258,7 +259,7 @@ def create():
 # http://localhost:5000/List>
 
 
-@app.route("/List", methods=["POST"])
+@app.route("/list", methods=["POST"])
 def List():
     try:
 
@@ -278,7 +279,7 @@ def List():
 # http://localhost:5000/Disable?param1=<table_name>
 
 
-@app.route("/Disable", methods=["POST"])
+@app.route("/disable", methods=["POST"])
 def Disable():
     try:
 
@@ -299,7 +300,7 @@ def Disable():
 # http://localhost:5000/Enable?param1=<table_name>
 
 
-@app.route("/Enable", methods=["POST"])
+@app.route("/enable", methods=["POST"])
 def Enable():
     try:
 
@@ -321,7 +322,7 @@ def Enable():
 # http://localhost:5000/Is_Enabled?param1=<table_name>
 
 
-@app.route("/Is_Enabled", methods=["POST"])
+@app.route("/is_enable", methods=["POST"])
 def Is_Enabled():
     try:
 
@@ -342,7 +343,7 @@ def Is_Enabled():
 # http://localhost:5000/Alter?param1=<query>
 
 
-@app.route("/Alter", methods=["POST"])
+@app.route("/alter", methods=["POST"])
 def Alter():
     try:
 
@@ -382,7 +383,7 @@ def Alter():
 # http://localhost:5000/Describe?param1=<table_name>
 
 
-@app.route("/Describe", methods=["POST"])
+@app.route("/describe", methods=["POST"])
 def Describe():
     try:
 
@@ -404,7 +405,7 @@ def Describe():
 # http://localhost:5000/Drop?param1=<table_name>
 
 
-@app.route("/Drop", methods=["POST"])
+@app.route("/drop", methods=["POST"])
 def Drop():
     try:
 
@@ -426,7 +427,7 @@ def Drop():
 # http://localhost:5000/DropAll
 
 
-@app.route("/DropAll", methods=["POST"])
+@app.route("/dropall", methods=["POST"])
 def DropAll():
     try:
 
