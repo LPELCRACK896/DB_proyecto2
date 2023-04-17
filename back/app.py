@@ -283,7 +283,7 @@ def List():
 def Disable():
     try:
 
-        inputNombre = request.args.get('param1')
+        inputNombre = request.args.get('query')
 
         value = master.disable(inputNombre)
 
@@ -304,7 +304,7 @@ def Disable():
 def Enable():
     try:
 
-        inputNombre = request.args.get('param1')
+        inputNombre = request.args.get('query')
 
         value = master.enable(inputNombre)
 
@@ -326,7 +326,7 @@ def Enable():
 def Is_Enabled():
     try:
 
-        inputNombre = request.args.get('param1')
+        inputNombre = request.args.get('query')
 
         value = master.is_enabled(inputNombre)
 
@@ -347,7 +347,7 @@ def Is_Enabled():
 def Alter():
     try:
 
-        input_str = request.args.get('param1')
+        input_str = request.args.get('query')
         parts = input_str.split(',')
 
         # Extract the table name
@@ -387,7 +387,7 @@ def Alter():
 def Describe():
     try:
 
-        input_str = request.args.get('param1')
+        input_str = request.args.get('query')
 
         value = master.describe(input_str)
 
@@ -409,7 +409,7 @@ def Describe():
 def Drop():
     try:
 
-        input_str = request.args.get('param1')
+        input_str = request.args.get('query')
 
         value = master.drop(input_str)
 
