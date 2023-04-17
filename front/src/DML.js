@@ -45,7 +45,7 @@ function DML() {
     }
     try {
       const response = await axios.post(`${apiUrl}${selectedButton}`, { query: inputValue });
-      setResponseMessage(JSON.stringify(response.data, null, 2));
+      setResponseMessage(JSON.stringify(response.data.message, null, 2));
     } catch (error) {
       console.error("Error making API request:", error);
       setResponseMessage("Error making API request");
