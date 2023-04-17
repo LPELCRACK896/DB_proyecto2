@@ -9,7 +9,7 @@ class Master:
 
     def put(self, table_name, row_key, column_family, column, value, timestamp=None):
         if table_name not in self.tables:
-            return 404, f"Table '{table_name}' does not exist."
+            return 400, f"Table '{table_name}' does not exist."
 
         if column_family not in self.tables[table_name].column_families:
             self.tables[table_name].add_column_family(column_family)
@@ -46,7 +46,7 @@ class Master:
     def create_table(self, table_name: str, column_families:list = ["cf"]):
         column_families = list(set(column_families))
         if table_name in self.tables:
-            return 404, f"Table '{table_name}' already exists."
+            return 400, f"Table '{table_name}' already exists."
         
         self.tables[table_name] = Table(column_families)
         return 200, "Success on creating table."
@@ -55,19 +55,19 @@ class Master:
         if table_name in self.tables:
             return 200, f"Table {table_name} is enable." if self.tables[table_name].isable else f"Table {table_name} is disabled."
         else:
-            return 404, f"Table {table_name} doesn't exist"
+            return 400, f"Table {table_name} doesn't exist"
         
     def enable(self, table_name):
         if table_name in self.tables:
             self.tables[table_name].enable()
             return 200, "Succesfully enable table."
-        return 404, "Table doesn't exist"
+        return 400, "Table doesn't exist"
 
     def disable(self, table_name):
         if table_name in self.tables:
             self.tables[table_name].disable()
             return 200, "Succesfully disable table."
-        return 404, "Table doesn't exist"
+        return 400, "Table doesn't exist"
 
     def load_data_from_json(self, table_name, json_file_path):
         with open(json_file_path, 'r') as f:
@@ -96,7 +96,7 @@ class Master:
 
     def all_alters(self, table_name, alters):
         if table_name not in self.tables:
-            return 404, "Table doesn't exist."
+            return 400, "Table doesn't exist."
         # Expects alter to have a list of dictionaries structure like this: {NAME: column_family_name, NEW_NAME: new_column_family_name} or {NAME: column_family_name, METHOD: delete} 
         log = []
         code = 200
@@ -112,22 +112,22 @@ class Master:
                         if method=="delete":
                             log.append(self.delete_alter(table_name, column_family))
                         else:
-                            code = 404
-                            log.append(404, f"No method allowed: {method}")
+                            code = 400
+                            log.append(400, f"No method allowed: {method}")
                     else:
-                        log.append(404, "Expects column_name")
+                        log.append(400, "Expects column_name")
 
                 else:
-                    code = 404
-                    log.append(404, "Expects column_name")
+                    code = 400
+                    log.append(400, "Expects column_name")
             else:
-                code = 404
-                log.append(404, "Expects only two parameters in alter action.") 
+                code = 400
+                log.append(400, "Expects only two parameters in alter action.") 
         return code, log
 
     def drop(self, table_name):
         if table_name not in self.tables:
-            return 404, "Table doesn't exist."
+            return 400, "Table doesn't exist."
         del self.tables[table_name]
         return 200, "Table {table_name} dropped correctly."
             
@@ -144,7 +144,7 @@ class Master:
     
     def scan(self, table_name, start_row=None, stop_row=None, column_family=None, column=None):
         if table_name not in self.tables:
-            return 404, "Table doesn't exist."
+            return 400, "Table doesn't exist."
 
         table = self.tables[table_name]
         results = {}
@@ -163,13 +163,13 @@ class Master:
 
     def delete(self, table_name, row_key, column=None, timestamp=None):
         if table_name not in self.tables:
-            return 404, f"Table '{table_name}' not found."
+            return 400, f"Table '{table_name}' not found."
 
         table = self.tables[table_name]
 
         row = table.get_row(row_key)
         if row is None:
-            return 404, f"Row with key '{row_key}' not found in table '{table_name}'."
+            return 400, f"Row with key '{row_key}' not found in table '{table_name}'."
 
         if column is None:
             table.delete_row(row_key)
@@ -177,13 +177,13 @@ class Master:
             if column in row:
                 del row[column]
             else:
-                return 404, f"Column '{column}' not found in row with key '{row_key}' in table '{table_name}'."
+                return 400, f"Column '{column}' not found in row with key '{row_key}' in table '{table_name}'."
 
         return 200, "Delete operation completed successfully."
 
     def delete_all(self, table_name, start_row=None, stop_row=None, column_family=None, column=None):
         if table_name not in self.tables:
-            return 404, f"Table '{table_name}' not found."
+            return 400, f"Table '{table_name}' not found."
 
         table = self.tables[table_name]
         row_keys_to_delete = []
@@ -207,7 +207,7 @@ class Master:
 
     def count(self, table_name, start_row=None, stop_row=None, column_family=None, column=None, timestamp=None):
         if table_name not in self.tables:
-            return 404, f"Table '{table_name}' not found."
+            return 400, f"Table '{table_name}' not found."
 
         table = self.tables[table_name]
         count = 0
@@ -230,7 +230,7 @@ class Master:
 
     def truncate(self, table_name):
         if table_name not in self.tables:
-            return 404, f"Table '{table_name}' not found."
+            return 400, f"Table '{table_name}' not found."
 
         table = self.tables[table_name]
         table.region.rows.clear()
@@ -255,12 +255,12 @@ class Table:
             self.region.put(row_key, column_family, column, value, timestamp)
             return 200, "Data updated successfully."
         else:
-            return 404, "Enable table to put data, table is disabled."
+            return 400, "Enable table to put data, table is disabled."
     
     def get(self, row_key, column_family, column):
         if self.is_enabled:
             return self.region.get(row_key, column_family, column)
-        return 404, "Enable table to get, table is disable."
+        return 400, "Enable table to get, table is disable."
 
     def enable(self):
         self.is_enabled = True
@@ -275,9 +275,9 @@ class Table:
 
     def rename_column_family(self, old_name, new_name):
         if old_name not in self.column_families:
-            return 404, f"Column family '{old_name}' does not exist."
+            return 400, f"Column family '{old_name}' does not exist."
         if new_name in self.column_families:
-            return 404, f"Column family '{new_name}' already exists."
+            return 400, f"Column family '{new_name}' already exists."
             
         self.column_families[self.column_families.index(old_name)] = new_name
 
@@ -288,7 +288,7 @@ class Table:
     
     def drop_column_family(self, column_family):
         if column_family not in self.column_families:
-            return 404, f"Column family '{column_family}' does not exist."
+            return 400, f"Column family '{column_family}' does not exist."
             
         self.column_families.remove(column_family)
 
@@ -304,7 +304,7 @@ class Table:
     def scan(self, start_row, stop_row):
         if self.isable:
             return self.region.scan(start_row, stop_row)
-        return 404, "Enable table to scan, table is disabled."
+        return 400, "Enable table to scan, table is disabled."
     
     def get_row(self, row_key):
         return self.region.rows.get(row_key)
