@@ -7,7 +7,7 @@ function DML() {
   const [selectedButton, setSelectedButton] = useState("");
   const [inputValue, setInputValue] = useState("");
   const [responseMessage, setResponseMessage] = useState("");
-  const apiUrl = "http://localhost:5000/api/v1/";
+  const apiUrl = "http://127.0.0.1:5000/";
   const command_message = {
     "put": "Parametros para put",
     "get": "Parametros para get",
@@ -32,6 +32,7 @@ function DML() {
     try {
       const response = await axios.post(`${apiUrl}${selectedButton}`, { query: inputValue });
       setResponseMessage(JSON.stringify(response.data));
+      console.log(response)
     } catch (error) {
       console.error("Error making API request:", error);
       setResponseMessage("Error making API request");
