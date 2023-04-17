@@ -343,7 +343,7 @@ def Is_Enabled():
 
 
 @app.route("/Alter", methods=["GET"])
-def Is_Enabled():
+def Alter():
     try:
 
         input_str = request.args.get('param1')
