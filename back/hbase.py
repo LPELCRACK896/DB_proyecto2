@@ -1,7 +1,8 @@
 from collections import defaultdict
-import json 
+import json
 import re
 import time
+
 
 class Master:
     def __init__(self):
@@ -19,17 +20,17 @@ class Master:
 
         return self.tables[table_name].put(row_key, column_family, column, value, timestamp)
 
-
     def __filtr_ddl_list(self, prefix=None):
         filtered_tables = dict(self.tables)
 
         if prefix:
             starts_pattern = re.compile(fr'^{prefix}')
-            filtered_tables = {k: v for k, v in filtered_tables.items() if starts_pattern.match(k)}
-        
+            filtered_tables = {
+                k: v for k, v in filtered_tables.items() if starts_pattern.match(k)}
+
         return filtered_tables
-    
-    def ddl_list(self, prefix = None):
+
+    def ddl_list(self, prefix=None):
         filtred_tables = self.__filtr_ddl_list(prefix)
         """
         Seccion para parsear la info de las tablas en un solo string. 
@@ -42,21 +43,21 @@ class Master:
             return 200, data
         except:
             return 500, "Error on server."
-    
-    def create_table(self, table_name: str, column_families:list = ["cf"]):
+
+    def create_table(self, table_name: str, column_families: list = ["cf"]):
         column_families = list(set(column_families))
         if table_name in self.tables:
             return 400, f"Table '{table_name}' already exists."
-        
+
         self.tables[table_name] = Table(column_families)
         return 200, "Success on creating table."
-        
+
     def is_enable(self, table_name):
         if table_name in self.tables:
             return 200, f"Table {table_name} is enable." if self.tables[table_name].isable else f"Table {table_name} is disabled."
         else:
             return 400, f"Table {table_name} doesn't exist"
-        
+
     def enable(self, table_name):
         if table_name in self.tables:
             self.tables[table_name].enable()
@@ -84,10 +85,9 @@ class Master:
             for row_key, column_families in record.items():
                 for column_family, columns in column_families.items():
                     for column, value in columns.items():
-                        self.put(table_name, row_key, column_family, column, value)
+                        self.put(table_name, row_key,
+                                 column_family, column, value)
 
-
-    
     def rename_alter(self, table_name, column_family, new_name):
         return self.tables[table_name].rename_column_family(column_family, new_name)
 
@@ -97,20 +97,22 @@ class Master:
     def all_alters(self, table_name, alters):
         if table_name not in self.tables:
             return 400, "Table doesn't exist."
-        # Expects alter to have a list of dictionaries structure like this: {NAME: column_family_name, NEW_NAME: new_column_family_name} or {NAME: column_family_name, METHOD: delete} 
+        # Expects alter to have a list of dictionaries structure like this: {NAME: column_family_name, NEW_NAME: new_column_family_name} or {NAME: column_family_name, METHOD: delete}
         log = []
         code = 200
         for alter in alters:
-            if len(alter)==2:
+            if len(alter) == 2:
                 if "NAME" in alter:
                     column_family = alter["NAME"]
                     if "NEW_NAME" in alter:
                         new_name = alter.get("NEW_NAME")
-                        log.append(self.rename_alter(table_name, column_family, new_name))
+                        log.append(self.rename_alter(
+                            table_name, column_family, new_name))
                     elif "METHOD" in alter:
                         method = alter.get("METHOD")
-                        if method=="delete":
-                            log.append(self.delete_alter(table_name, column_family))
+                        if method == "delete":
+                            log.append(self.delete_alter(
+                                table_name, column_family))
                         else:
                             code = 400
                             log.append(400, f"No method allowed: {method}")
@@ -122,7 +124,7 @@ class Master:
                     log.append(400, "Expects column_name")
             else:
                 code = 400
-                log.append(400, "Expects only two parameters in alter action.") 
+                log.append(400, "Expects only two parameters in alter action.")
         return code, log
 
     def drop(self, table_name):
@@ -130,7 +132,7 @@ class Master:
             return 400, "Table doesn't exist."
         del self.tables[table_name]
         return 200, "Table {table_name} dropped correctly."
-            
+
     def drop_all(self):
         self.tables.clear()
         return 200, "All tables droped"
@@ -138,10 +140,9 @@ class Master:
     def describe(self, table_name) -> tuple:
         if table_name not in self.tables:
             return 400, {"name": table_name, "state": None, "column_families": None}
-        table: Table  = self.tables[table_name]
+        table: Table = self.tables[table_name]
         return 200, {"name": table_name, "state": table.isable, "column_families": table.column_families}
 
-    
     def scan(self, table_name, start_row=None, stop_row=None, column_family=None, column=None):
         if table_name not in self.tables:
             return 400, "Table doesn't exist."
@@ -225,7 +226,7 @@ class Master:
                                 cell = row.column_families[column_family][column]
                                 if timestamp is None or cell.get(timestamp) is not None:
                                     count += 1
-                                
+
         return 200, count
 
     def truncate(self, table_name):
@@ -235,20 +236,20 @@ class Master:
         table = self.tables[table_name]
         table.region.rows.clear()
         return 200, f"Table '{table_name}' truncated successfully."
-    
+
+
 class Table:
     def __init__(self, column_families=None):
         self.region = Region(column_families)
         self.column_families = column_families or []
         self.is_enabled = True
-        #Estos valores solo son simbolicos no afectan nada sobre la arquitectura simulada. 
+        # Estos valores solo son simbolicos no afectan nada sobre la arquitectura simulada.
         self.commpresion = None
         self.versions = 1
         self.ttl = float('inf')
         self.block_size = '1MB'
         self.in_memory = True
         self.bloom_filter = None
-        
 
     def put(self, row_key, column_family, column, value, timestamp):
         if self.is_enabled:
@@ -256,7 +257,7 @@ class Table:
             return 200, "Data updated successfully."
         else:
             return 400, "Enable table to put data, table is disabled."
-    
+
     def get(self, row_key, column_family, column):
         if self.is_enabled:
             return self.region.get(row_key, column_family, column)
@@ -265,7 +266,7 @@ class Table:
     def enable(self):
         self.is_enabled = True
         return True
-        
+
     def disable(self):
         self.is_enabled = False
         return True
@@ -278,18 +279,19 @@ class Table:
             return 400, f"Column family '{old_name}' does not exist."
         if new_name in self.column_families:
             return 400, f"Column family '{new_name}' already exists."
-            
+
         self.column_families[self.column_families.index(old_name)] = new_name
 
         for row in self.region.rows.values():
             if old_name in row.column_families:
-                row.column_families[new_name] = row.column_families.pop(old_name)
+                row.column_families[new_name] = row.column_families.pop(
+                    old_name)
         return 200, f"Succesfully rename column family {old_name}->{new_name}"
-    
+
     def drop_column_family(self, column_family):
         if column_family not in self.column_families:
             return 400, f"Column family '{column_family}' does not exist."
-            
+
         self.column_families.remove(column_family)
 
         for row in self.region.rows.values():
@@ -305,13 +307,15 @@ class Table:
         if self.isable:
             return self.region.scan(start_row, stop_row)
         return 400, "Enable table to scan, table is disabled."
-    
+
     def get_row(self, row_key):
         return self.region.rows.get(row_key)
 
     def delete_row(self, row_key):
         if row_key in self.region.rows:
             del self.region.rows[row_key]
+
+
 class Region:
     def __init__(self, allowed_column_families=None):
         self.rows = defaultdict(lambda: Row(allowed_column_families))
@@ -319,12 +323,12 @@ class Region:
     def put(self, row_key, column_family, column, value, timestamp):
         self.rows[row_key].put(column_family, column, value, timestamp)
 
-    
     def get(self, row_key, column_family, column):
         return self.rows[row_key].get(column_family, column)
-    
+
     def scan(self, start_row, stop_row):
         return {row_key: row for row_key, row in self.rows.items() if start_row <= row_key < stop_row}
+
 
 class Row:
     def __init__(self, allowed_column_families=None):
@@ -333,7 +337,8 @@ class Row:
 
     def put(self, column_family, column, value, timestamp):
         if column_family not in self.allowed_column_families:
-            raise ValueError(f"Column family '{column_family}' is not allowed.")
+            raise ValueError(
+                f"Column family '{column_family}' is not allowed.")
         self.column_families[column_family][column].put(value, timestamp)
 
     def get(self, column_family, column):
@@ -362,7 +367,9 @@ class Cell:
         if timestamp is None:
             self.versions = []
         else:
-            self.versions = [version for version in self.versions if version["timestamp"] > timestamp]
+            self.versions = [
+                version for version in self.versions if version["timestamp"] > timestamp]
+
 
 class KeyValue:
     def __init__(self, value):
