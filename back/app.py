@@ -405,7 +405,7 @@ def Describe():
 
 
 @app.route("/Drop", methods=["GET"])
-def Describe():
+def Drop():
     try:
 
         input_str = request.args.get('param1')
@@ -427,7 +427,7 @@ def Describe():
 
 
 @app.route("/DropAll", methods=["GET"])
-def Describe():
+def DropAll():
     try:
 
         master.drop()
