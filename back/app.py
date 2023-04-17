@@ -208,11 +208,12 @@ def truncate():
 # ejemplo: "7777, {NAME => 'value1'}, {NAME => 'value2'}
 
 
-@app.route("/create", methods=["GET"])
+@app.route("/create", methods=["POST"])
 def create():
     try:
 
-        input_str = request.args.get('param1')
+        input_str = request.args.get('query')
+        print(input_str)
 
         # Split the input string into parts
         parts = input_str.split(',')
@@ -260,7 +261,7 @@ def create():
 # ejemplo: 8329
 
 
-@app.route("/List", methods=["GET"])
+@app.route("/list", methods=["POST"])
 def List():
     try:
 
@@ -280,11 +281,11 @@ def List():
 # http://localhost:5000/Disable?param1=<table_name>
 # ejemplo: 8329
 
-@app.route("/Disable", methods=["GET"])
+@app.route("/disable", methods=["POST"])
 def Disable():
     try:
 
-        inputNombre = request.args.get('param1')
+        inputNombre = request.args.get('query')
 
         value = master.disable(inputNombre)
 
@@ -302,11 +303,11 @@ def Disable():
 # ejemplo: 8329
 
 
-@app.route("/Enable", methods=["GET"])
+@app.route("/enable", methods=["POST"])
 def Enable():
     try:
 
-        inputNombre = request.args.get('param1')
+        inputNombre = request.args.get('query')
 
         value = master.enable(inputNombre)
 
@@ -324,11 +325,11 @@ def Enable():
 # http://localhost:5000/Is_Enabled?param1=<table_name>
 # ejemplo: 8329
 
-@app.route("/Is_Enabled", methods=["GET"])
+@app.route("/is_enable", methods=["POST"])
 def Is_Enabled():
     try:
 
-        inputNombre = request.args.get('param1')
+        inputNombre = request.args.get('query')
 
         value = master.is_enabled(inputNombre)
 
@@ -346,11 +347,11 @@ def Is_Enabled():
 # ejemplo: 8929, {NAME: 'game info', NEW_NAME: 'ejemplo1'}, {NAME: 'purchase info', METHOD: delete}
 
 
-@app.route("/Alter", methods=["GET"])
+@app.route("/alter", methods=["POST"])
 def Alter():
     try:
 
-        input_str = request.args.get('param1')
+        input_str = request.args.get('query')
         parts = input_str.split(',')
 
         # Extract the table name
@@ -386,11 +387,11 @@ def Alter():
 # http://localhost:5000/Describe?param1=<table_name>
 # ejemplo: 8329
 
-@app.route("/Describe", methods=["GET"])
+@app.route("/describe", methods=["POST"])
 def Describe():
     try:
 
-        input_str = request.args.get('param1')
+        input_str = request.args.get('query')
 
         value = master.describe(input_str)
 
@@ -408,11 +409,11 @@ def Describe():
 # http://localhost:5000/Drop?param1=<table_name>
 # ejemplo: 8329
 
-@app.route("/Drop", methods=["GET"])
+@app.route("/drop", methods=["POST"])
 def Drop():
     try:
 
-        input_str = request.args.get('param1')
+        input_str = request.args.get('query')
 
         value = master.drop(input_str)
 
@@ -430,7 +431,7 @@ def Drop():
 # http://localhost:5000/DropAll
 # ejemplo:
 
-@app.route("/DropAll", methods=["GET"])
+@app.route("/dropall", methods=["POST"])
 def DropAll():
     try:
 
