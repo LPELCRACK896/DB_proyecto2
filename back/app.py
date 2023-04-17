@@ -8,10 +8,10 @@ from data_generator import gen_games, gen_purchase
 
 master = Master()
 master.load_data_from_json("Sales", "./back/purchases.json")
-master.load_data_from_json("Games", "./back/games.json")# Create the Flask app
+master.load_data_from_json(
+    "Games", "./back/games.json")  # Create the Flask app
 app = Flask(__name__)
 CORS(app)  # Add this line to enable CORS for all routes
-
 
 
 def process_put(input_str):
@@ -26,12 +26,15 @@ def process_put(input_str):
 
         timestamp = int(timestamp) if timestamp else None
 
-        print(table_name, row_key, column_family, column_qualifier, value, timestamp)
+        print(table_name, row_key, column_family,
+              column_qualifier, value, timestamp)
 
-        status, message = master.put(table_name, row_key, column_family, column_qualifier, value, timestamp)
+        status, message = master.put(
+            table_name, row_key, column_family, column_qualifier, value, timestamp)
         return {'status': status, 'message': message}
     except Exception as e:
         return {'status': 400, 'message': str(e)}
+
 
 def process_get(input_str):
     try:
@@ -43,9 +46,10 @@ def process_get(input_str):
         table_name, row_key, column_family_qualifier = input_parts[:3]
         column_family, column_qualifier = column_family_qualifier.split(':')
 
-        status, message = master.get(table_name, row_key, column_family, column_qualifier)
+        status, message = master.get(
+            table_name, row_key, column_family, column_qualifier)
         return {'status': status, 'message': message}
-        
+
     except Exception as e:
         return {"message": str(e), "status": 400}
 
@@ -64,26 +68,29 @@ def process_scan(input_str):
 
         status, message = master.scan(table_name, start_row, stop_row)
         return {'status': status, 'message': message}
-        
+
     except Exception as e:
         return {"message": str(e), "status": 400}
+
 
 def process_delete(input_str):
     try:
         input_parts = input_str.split(',')
 
         if len(input_parts) < 2:
-            raise ValueError("Input string should have 3 values: 'table_name','row_key','column_family:column_qualifier'")
+            raise ValueError(
+                "Input string should have 3 values: 'table_name','row_key','column_family:column_qualifier'")
 
         table_name = input_parts[0]
-        row_key  = input_parts[1]
-        column = input_parts[2] if len(input_parts)==3 else None
+        row_key = input_parts[1]
+        column = input_parts[2] if len(input_parts) == 3 else None
         status, message = master.delete(table_name, row_key, column)
         print(message)
         return {'status': status, 'message': message}
-        
+
     except Exception as e:
         return {"message": str(e), "status": 400}
+
 
 def process_delete_all(input_str):
     try:
@@ -99,10 +106,11 @@ def process_delete_all(input_str):
 
         status, message = master.delete_all(table_name, start_row, stop_row)
         return {'status': status, 'message': message}
-        
+
     except Exception as e:
         return {"message": str(e), "status": 400}
-    
+
+
 def process_count(input_str):
     try:
         input_parts = input_str.split(',')
@@ -115,9 +123,10 @@ def process_count(input_str):
         status, message = master.count(table_name)
 
         return {'status': status, 'message': message}
-        
+
     except Exception as e:
         return {"message": str(e), "status": 400}
+
 
 def process_truncate(input_str):
     try:
@@ -128,10 +137,11 @@ def process_truncate(input_str):
 
         table_name = input_parts[0]
         status, message = master.truncate(table_name)
-        return {'status': status, 'message': message} 
-        
+        return {'status': status, 'message': message}
+
     except Exception as e:
         return {"message": str(e), "status": 400}
+
 
 @app.route('/put', methods=['POST'])
 def put():
@@ -139,6 +149,7 @@ def put():
     input_str = data.get('query')
     result = process_put(input_str)
     return jsonify(result)
+
 
 @app.route('/get', methods=['POST'])
 def get():
@@ -184,6 +195,7 @@ def count():
         return jsonify(response), response.get('status', 200)
     return jsonify({"message": "Input string is missing", "status": 400}), 400
 
+
 @app.route('/truncate', methods=['POST'])
 def truncate():
     input_str = request.json.get('query', None)
@@ -191,6 +203,250 @@ def truncate():
         response = process_truncate(input_str)
         return jsonify(response), response.get('status', 200)
     return jsonify({"message": "Input string is missing", "status": 400}), 400
+
+# http://localhost:5000/create?<query>
+
+
+@app.route("/create", methods=["GET"])
+def create():
+    try:
+
+        input_str = request.args.get('param1')
+
+        # Split the input string into parts
+        parts = input_str.split(',')
+
+        # Extract the table name
+        table_name = parts[0].strip()
+
+        # Extract the column families
+        column_families = []
+
+        for part in parts[1:]:
+            column_family = part.strip().strip('{}')
+
+            if("=>" in column_family):
+                column_family_name = column_family.split('=>')[0].strip()
+                column_family_value = column_family.split('=>')[1].strip()
+                column_families.append(
+                    {column_family_name: column_family_value})
+
+            else:
+                error = {
+                    '400',
+                    ('error: no se puede leer el query, revisa que contenga =>')
+                }
+                return error
+
+        # Create a dictionary with the table name and column families
+        master.create_table(table_name, column_families)
+
+        regresar = {
+            200,
+            'Data processed successfully'
+        }
+        return regresar
+
+    except Exception as e:
+        # Return error message if any exception occurs
+        error = {
+            '400',
+            ('error: ' + str(e))
+        }
+        return error
+
+# http://localhost:5000/List>
+
+
+@app.route("/List", methods=["GET"])
+def List():
+    try:
+
+        list = master.ddl_list()
+
+        return list
+
+    except Exception as e:
+        # Return error message if any exception occurs
+        error = {
+            '400',
+            ('error: ' + str(e))
+        }
+        return error
+
+
+# http://localhost:5000/Disable?param1=<table_name>
+
+
+@app.route("/Disable", methods=["GET"])
+def Disable():
+    try:
+
+        inputNombre = request.args.get('param1')
+
+        value = master.disable(inputNombre)
+
+        return value
+
+    except Exception as e:
+        # Return error message if any exception occurs
+        error = {
+            '400',
+            ('error: ' + str(e))
+        }
+        return error
+
+# http://localhost:5000/Enable?param1=<table_name>
+
+
+@app.route("/Enable", methods=["GET"])
+def Enable():
+    try:
+
+        inputNombre = request.args.get('param1')
+
+        value = master.enable(inputNombre)
+
+        return value
+
+    except Exception as e:
+        # Return error message if any exception occurs
+        error = {
+            '400',
+            ('error: ' + str(e))
+        }
+        return error
+
+
+# http://localhost:5000/Is_Enabled?param1=<table_name>
+
+
+@app.route("/Is_Enabled", methods=["GET"])
+def Is_Enabled():
+    try:
+
+        inputNombre = request.args.get('param1')
+
+        value = master.is_enabled(inputNombre)
+
+        return value
+
+    except Exception as e:
+        # Return error message if any exception occurs
+        error = {
+            '400',
+            ('error: ' + str(e))
+        }
+        return error
+
+# http://localhost:5000/Alter?param1=<query>
+
+
+@app.route("/Alter", methods=["GET"])
+def Is_Enabled():
+    try:
+
+        input_str = request.args.get('param1')
+        parts = input_str.split(',')
+
+        # Extract the table name
+        table_name = parts.pop(0).strip()
+
+        for i in range(0, len(parts), 2):
+            column_family = parts[i].strip().strip('{}')
+            column_family_name = column_family.split(':')[0].strip()
+            column_family_value = column_family.split(':')[1].strip()
+
+            column_family_new = parts[i+1].strip().strip('{}')
+            new_family_accion = column_family_new.split(':')[0].strip()
+            column_family_value_new = column_family_new.split(':')[1].strip()
+
+            if(new_family_accion == 'NEW_NAME'):
+                master.alter_table(
+                    table_name, column_family_name, column_family_value_new
+                )
+            elif(new_family_accion == 'METHOD'):
+                master.delete_alter(
+                    table_name, column_family_name
+                )
+
+    except Exception as e:
+        # Return error message if any exception occurs
+        error = {
+            '400',
+            ('error: ' + str(e))
+        }
+        return error
+
+
+# http://localhost:5000/Describe?param1=<table_name>
+
+
+@app.route("/Describe", methods=["GET"])
+def Describe():
+    try:
+
+        input_str = request.args.get('param1')
+
+        value = master.describe(input_str)
+
+        return value
+
+    except Exception as e:
+        # Return error message if any exception occurs
+        error = {
+            '400',
+            ('error: ' + str(e))
+        }
+        return error
+
+
+# http://localhost:5000/Drop?param1=<table_name>
+
+
+@app.route("/Drop", methods=["GET"])
+def Describe():
+    try:
+
+        input_str = request.args.get('param1')
+
+        value = master.drop(input_str)
+
+        return value
+
+    except Exception as e:
+        # Return error message if any exception occurs
+        error = {
+            '400',
+            ('error: ' + str(e))
+        }
+        return error
+
+
+# http://localhost:5000/DropAll
+
+
+@app.route("/DropAll", methods=["GET"])
+def Describe():
+    try:
+
+        master.drop()
+
+        value = {
+            200,
+            'All tables dropped successfully'
+        }
+
+        return value
+
+    except Exception as e:
+        # Return error message if any exception occurs
+        error = {
+            '400',
+            ('error: ' + str(e))
+        }
+        return error
+
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -2,6 +2,11 @@ from flask import Flask, jsonify, render_template, request, redirect, url_for, f
 from pymongo import MongoClient, InsertOne
 from bson.objectid import ObjectId
 import json
+from hbase import Master
+
+master = Master()
+master.load_data_from_json("Sales", "./back/purchases.json")
+master.load_data_from_json("Games", "./back/games.json")
 
 app = Flask(__name__)
 
@@ -12,9 +17,7 @@ app = Flask(__name__)
 def create():
     try:
 
-        nameFile = request.args.get('param1')
-        nameFile = nameFile + ".json"
-        input_str = request.args.get('param2')
+        input_str = request.args.get('param1')
 
         # Split the input string into parts
         parts = input_str.split(',')
@@ -42,14 +45,7 @@ def create():
                 return error
 
         # Create a dictionary with the table name and column families
-        hbase_json = {table_name: {"column_families": column_families}}
-
-        # Convert the dictionary to JSON
-        json_data = json.dumps(hbase_json, indent=2)
-
-        # Write JSON data to a file
-        with open(nameFile, 'w') as file:
-            file.write(json_data)
+        master.create_table(table_name, column_families)
 
         regresar = {
             200,
@@ -65,35 +61,14 @@ def create():
         }
         return error
 
-# http://localhost:5000/List?param1=<archivo>&param2=<palabra a buscar>
+# http://localhost:5000/List>
 
 
 @app.route("/List", methods=["GET"])
 def List():
     try:
 
-        # searchFile = request.args.get('param1')
-        # searchFile = searchFile + ".json"
-        # inputNombre = request.args.get('param2')
-        # # Open the JSON file in read mode
-        # with open(searchFile, 'r') as json_file:
-        #     # Load the JSON data from the file
-        #     json_data = json.load(json_file)
-
-        inputNombre = request.args.get('param1')
-        # Open the JSON file in read mode
-        with open("games.json", 'r') as json_file:
-            # Load the JSON data from the file
-            json_data = json.load(json_file)
-
-        # Alternatively, you can iterate over the keys and values in the JSON dictionary
-        list = []
-        for key, value in json_data.items():
-            print(f"Key: {key}, Value: {value}")
-
-            keyString = key.split(' ')
-            if(keyString[0] == inputNombre):
-                list.append(key)
+        list = master.ddl_list()
 
         return list
 
@@ -114,36 +89,10 @@ def Disable():
     try:
 
         inputNombre = request.args.get('param1')
-        # Open the JSON file in read mode
-        with open('games.json', 'r') as json_file:
-            # Load the JSON data from the file
-            json_data = json.load(json_file)
 
-        for key, value in json_data.items():
+        value = master.disable(inputNombre)
 
-            if(key == inputNombre):
-                with open('validator.json', 'r') as json_file:
-                    # Load the JSON data from the file
-                    validator = json.load(json_file)
-
-                # Add a value to the key
-                validator[key] = 'disabled'
-
-                # Write the updated JSON data back to the file
-                with open('validator.json', 'w') as f:
-                    json.dump(validator, f, indent=4)
-
-                regresar = {
-                    200,
-                    'Table disabled successfully'
-                }
-                return regresar
-            else:
-                error = {
-                    '200',
-                    ('No se encontro la tabla')
-                }
-                return error
+        return value
 
     except Exception as e:
         # Return error message if any exception occurs
@@ -161,28 +110,10 @@ def Enable():
     try:
 
         inputNombre = request.args.get('param1')
-        # Open the JSON file in read mode
-        with open('validator.json', 'r') as json_file:
-            # Load the JSON data from the file
-            json_data = json.load(json_file)
 
-        for key, value in json_data.items():
+        value = master.enable(inputNombre)
 
-            if (key == inputNombre):
-                del json_data[key]
-                with open('validator.json', 'w') as f:
-                    json.dump(json_data, f, indent=4)
-                regresar = {
-                    '200',
-                    ('Table enabled successfully')
-                }
-                return regresar
-
-        regresar = {
-            '200',
-            ('Tabla no encontrada como deshabilitada: revisa nombre de la tabla')
-        }
-        return regresar
+        return value
 
     except Exception as e:
         # Return error message if any exception occurs
@@ -201,33 +132,118 @@ def Is_Enabled():
     try:
 
         inputNombre = request.args.get('param1')
-        # Open the JSON file in read mode
-        with open('games.json', 'r') as json_file:
-            # Load the JSON data from the file
-            json_data = json.load(json_file)
 
-        for key, value in json_data.items():
+        value = master.is_enabled(inputNombre)
 
-            if(key == inputNombre):
-                with open('validator.json', 'r') as json_file:
-                    # Load the JSON data from the file
-                    validator = json.load(json_file)
-                flag = False
-                for key2, value2 in validator.items():
-                    if(key2 == key):
-                        flag = True
+        return value
 
-                if(flag):
-                    regresar = {
-                        '200',
-                        ('Table is disabled')
-                    }
-                else:
-                    regresar = {
-                        '200',
-                        ('Table is enabled')
-                    }
-                return regresar
+    except Exception as e:
+        # Return error message if any exception occurs
+        error = {
+            '400',
+            ('error: ' + str(e))
+        }
+        return error
+
+# http://localhost:5000/Alter?param1=<query>
+
+
+@app.route("/Alter", methods=["GET"])
+def Is_Enabled():
+    try:
+
+        input_str = request.args.get('param1')
+        parts = input_str.split(',')
+
+        # Extract the table name
+        table_name = parts.pop(0).strip()
+
+        for i in range(0, len(parts), 2):
+            column_family = parts[i].strip().strip('{}')
+            column_family_name = column_family.split(':')[0].strip()
+            column_family_value = column_family.split(':')[1].strip()
+
+            column_family_new = parts[i+1].strip().strip('{}')
+            new_family_accion = column_family_new.split(':')[0].strip()
+            column_family_value_new = column_family_new.split(':')[1].strip()
+
+            if(new_family_accion == 'NEW_NAME'):
+                master.alter_table(
+                    table_name, column_family_name, column_family_value_new
+                )
+            elif(new_family_accion == 'METHOD'):
+                master.delete_alter(
+                    table_name, column_family_name
+                )
+
+    except Exception as e:
+        # Return error message if any exception occurs
+        error = {
+            '400',
+            ('error: ' + str(e))
+        }
+        return error
+
+
+# http://localhost:5000/Describe?param1=<table_name>
+
+
+@app.route("/Describe", methods=["GET"])
+def Describe():
+    try:
+
+        input_str = request.args.get('param1')
+
+        value = master.describe(input_str)
+
+        return value
+
+    except Exception as e:
+        # Return error message if any exception occurs
+        error = {
+            '400',
+            ('error: ' + str(e))
+        }
+        return error
+
+
+# http://localhost:5000/Drop?param1=<table_name>
+
+
+@app.route("/Drop", methods=["GET"])
+def Describe():
+    try:
+
+        input_str = request.args.get('param1')
+
+        value = master.drop(input_str)
+
+        return value
+
+    except Exception as e:
+        # Return error message if any exception occurs
+        error = {
+            '400',
+            ('error: ' + str(e))
+        }
+        return error
+
+
+# http://localhost:5000/DropAll
+
+
+@app.route("/DropAll", methods=["GET"])
+def Describe():
+    try:
+
+        master.drop()
+
+        value = {
+            200,
+            'All tables dropped successfully'
+        }
+
+        return value
 
     except Exception as e:
         # Return error message if any exception occurs
