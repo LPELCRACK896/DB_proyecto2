@@ -1,13 +1,47 @@
 import './App.css';
 import { Link, useParams } from "react-router-dom";
 import React, { useState } from "react";
+import axios from "axios";
 
 function DDL() {
 
   const [selectedButton, setSelectedButton] = useState("");
+  const [inputValue, setInputValue] = useState("");
+  const apiUrl = "http://localhost:5000/api/v1/";
+  const [responseMessage, setResponseMessage] = useState("");
+  const  command_message = {
+    "create": "create params",
+    "list": "list params",
+    "disable": "disable params",
+    "enable": "enable paramas",
+    "is_enable": "is_enable params",
+    "alter": "alter params",
+    "drop": "drop params",
+    "dropall": "dropall params",
+    "describe": "describe params",
+  };
+  const selectCommand = (buttonText) => {
+    setSelectedButton(command_message[buttonText]);
+  };
 
-  const handleClick = (buttonText) => {
-    setSelectedButton(buttonText);
+  const runCommand = async () => {
+    if (!selectedButton) {
+      console.error("No command selected");
+      return;
+    }
+
+    const command = Object.keys(command_message).find(key => command_message[key] === selectedButton);
+    try {
+      const response = await axios.post(`${apiUrl}${command}`, { query: inputValue });
+      setResponseMessage(JSON.stringify(response.data));
+    } catch (error) {
+      console.error("Error making API request:", error);
+      setResponseMessage("Error making API request");
+    }
+  };
+
+  const handleInputChange = (e) => {
+    setInputValue(e.target.value);
   };
   return (
     // NAVBAR A LA IZQUIERDA
@@ -37,38 +71,39 @@ function DDL() {
     {/* CONTENIDOOOO */}
       <div className='contenido'>
         <h1 className='titulo'>DDL</h1>
-      <button className='pagDDL'onClick={() => handleClick("Parametros para create")}>
+      <button className='pagDDL'onClick={() => selectCommand("create")}>
         create
       </button>
-      <button className='pagDDL'onClick={() => handleClick("Parametros para list")}>
+      <button className='pagDDL'onClick={() => selectCommand("list")}>
         list
       </button>
-      <button className='pagDDL'onClick={() => handleClick("Parametros para disable")}>
+      <button className='pagDDL'onClick={() => selectCommand("disable")}>
         disable
       </button>
-      <button className='pagDDL'onClick={() => handleClick("Parametros para enable")}>
+      <button className='pagDDL'onClick={() => selectCommand("enable")}>
         enable
       </button>
-      <button className='pagDDL'onClick={() => handleClick("Parametros para is_enable")}>
+      <button className='pagDDL'onClick={() => selectCommand("is_enable")}>
         is_enable
       </button>
-      <button className='pagDDL'onClick={() => handleClick("Parametros para alter")}>
+      <button className='pagDDL'onClick={() => selectCommand("alter")}>
         alter
       </button>
-      <button className='pagDDL'onClick={() => handleClick("Parametros para drop")}>
+      <button className='pagDDL'onClick={() => selectCommand("drop")}>
         drop
       </button>
-      <button className='pagDDL'onClick={() => handleClick("Parametros para drop all")}>
+      <button className='pagDDL'onClick={() => selectCommand("dropall")}>
         dropall
       </button>
-      <button className='pagDDL'onClick={() => handleClick("Parametros para describe")}>
+      <button className='pagDDL'onClick={() => selectCommand("describe")}>
         describe
       </button>
       <p className='parapapa'>{selectedButton}</p>
-      <input className='parametroinput'></input>
-      <button className='correr'>
+      <input className='parametroinput' onChange={handleInputChange} value={inputValue}></input>
+      <button className='correr' onClick={runCommand}>
         RUN
       </button>
+      <p className='response-message'>{responseMessage}</p>
       </div>
     </div>
       

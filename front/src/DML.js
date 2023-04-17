@@ -1,12 +1,45 @@
 import './App.css';
 import { Link, useParams } from "react-router-dom";
 import React, { useState } from "react";
+import axios from "axios";
 
 function DML() {
   const [selectedButton, setSelectedButton] = useState("");
-
-  const handleClick = (buttonText) => {
+  const [inputValue, setInputValue] = useState("");
+  const [responseMessage, setResponseMessage] = useState("");
+  const apiUrl = "http://localhost:5000/api/v1/";
+  const command_message = {
+    "put": "Parametros para put",
+    "get": "Parametros para get",
+    "scan": "Parametros para scan",
+    "delete": "Parametros para delete",
+    "deleteall": "Parametros para delete all",
+    "count": "Parametros para count",
+    "truncate": "Parametros para truncate",
+    "updateMany": "Parametros para update many",
+    "insertMany": "Parametros para insert many",
+  };
+  const selectCommand = (buttonText) => {
     setSelectedButton(buttonText);
+  };
+
+  const runCommand = async () => {
+    if (!selectedButton) {
+      console.error("No command selected");
+      return;
+    }
+    console.log("a")
+    try {
+      const response = await axios.post(`${apiUrl}${selectedButton}`, { query: inputValue });
+      setResponseMessage(JSON.stringify(response.data));
+    } catch (error) {
+      console.error("Error making API request:", error);
+      setResponseMessage("Error making API request");
+    }
+  };
+
+  const handleInputChange = (e) => {
+    setInputValue(e.target.value);
   };
   return (
     // NAVBAR A LA IZQUIERDA
@@ -36,38 +69,39 @@ function DML() {
     {/* CONTENIDOOOO */}
       <div className='contenido'>
         <h1 className='titulo'>DML</h1>
-      <button className='pagDML' onClick={() => handleClick("Parametros para put")}>
+      <button className='pagDML' onClick={() => selectCommand("put")}>
         put
       </button>
-      <button className='pagDML'onClick={() => handleClick("Parametros para get")}>
+      <button className='pagDML'onClick={() => selectCommand("get")}>
         get
       </button>
-      <button className='pagDML'onClick={() => handleClick("Parametros para scan")}>
+      <button className='pagDML'onClick={() => selectCommand("scan")}>
         scan
       </button>
-      <button className='pagDML'onClick={() => handleClick("Parametros para delete")}>
+      <button className='pagDML'onClick={() => selectCommand("delete")}>
         delete
       </button>
-      <button className='pagDML'onClick={() => handleClick("Parametros para delete all")}>
+      <button className='pagDML'onClick={() => selectCommand("delete_all")}>
         deleteall
       </button>
-      <button className='pagDML'onClick={() => handleClick("Parametros para count")}>
+      <button className='pagDML'onClick={() => selectCommand("count")}>
         count
       </button>
-      <button className='pagDML'onClick={() => handleClick("Parametros para truncate")}>
+      <button className='pagDML'onClick={() => selectCommand("truncate")}>
         truncate
       </button>
-      <button className='pagDML'onClick={() => handleClick("Parametros para update many")}>
+      <button className='pagDML'onClick={() => selectCommand("update_many")}>
         updateMany
       </button>
-      <button className='pagDML'onClick={() => handleClick("Parametros para insert many")}>
+      <button className='pagDML'onClick={() => selectCommand("insert_many")}>
         insertMany
       </button>
-      <p className='parapapa'>{selectedButton}</p>
-      <input className='parametroinput'></input>
-      <button className='correr'>
+      <p className='parapapa'>{command_message[selectedButton]}</p>
+      <input className='parametroinput' onChange={handleInputChange} value={inputValue}></input>
+      <button className='correr' onClick={runCommand}>
         RUN
       </button>
+      <p className='response-message'>{responseMessage}</p>
       </div>
     </div>
       
