@@ -161,6 +161,81 @@ class Master:
 
         return 200, results
 
+    def delete(self, table_name, row_key, column=None, timestamp=None):
+        if table_name not in self.tables:
+            return 404, f"Table '{table_name}' not found."
+
+        table = self.tables[table_name]
+
+        row = table.get_row(row_key)
+        if row is None:
+            return 404, f"Row with key '{row_key}' not found in table '{table_name}'."
+
+        if column is None:
+            table.delete_row(row_key)
+        else:
+            if column in row:
+                del row[column]
+            else:
+                return 404, f"Column '{column}' not found in row with key '{row_key}' in table '{table_name}'."
+
+        return 200, "Delete operation completed successfully."
+
+    def delete_all(self, table_name, start_row=None, stop_row=None, column_family=None, column=None):
+        if table_name not in self.tables:
+            return 404, f"Table '{table_name}' not found."
+
+        table = self.tables[table_name]
+        row_keys_to_delete = []
+
+        for row_key, row in table.region.rows.items():
+            if (start_row is None or row_key >= start_row) and (stop_row is None or row_key < stop_row):
+                if column_family is None:
+                    row_keys_to_delete.append(row_key)
+                else:
+                    if column_family in row.column_families:
+                        if column is None:
+                            del row.column_families[column_family]
+                        else:
+                            if column in row.column_families[column_family]:
+                                del row.column_families[column_family][column]
+
+        for row_key in row_keys_to_delete:
+            table.delete_row(row_key)
+
+        return 200, "Delete All operation completed successfully."
+
+    def count(self, table_name, start_row=None, stop_row=None, column_family=None, column=None, timestamp=None):
+        if table_name not in self.tables:
+            return 404, f"Table '{table_name}' not found."
+
+        table = self.tables[table_name]
+        count = 0
+
+        for row_key, row in table.region.rows.items():
+            if (start_row is None or row_key >= start_row) and (stop_row is None or row_key < stop_row):
+                if column_family is None:
+                    count += 1
+                else:
+                    if column_family in row.column_families:
+                        if column is None:
+                            count += 1
+                        else:
+                            if column in row.column_families[column_family]:
+                                cell = row.column_families[column_family][column]
+                                if timestamp is None or cell.get(timestamp) is not None:
+                                    count += 1
+                                
+        return 200, count
+
+    def truncate(self, table_name):
+        if table_name not in self.tables:
+            return 404, f"Table '{table_name}' not found."
+
+        table = self.tables[table_name]
+        table.region.rows.clear()
+        return 200, f"Table '{table_name}' truncated successfully."
+    
 class Table:
     def __init__(self, column_families=None):
         self.region = Region(column_families)
@@ -230,7 +305,13 @@ class Table:
         if self.isable:
             return self.region.scan(start_row, stop_row)
         return 404, "Enable table to scan, table is disabled."
+    
+    def get_row(self, row_key):
+        return self.region.rows.get(row_key)
 
+    def delete_row(self, row_key):
+        if row_key in self.region.rows:
+            del self.region.rows[row_key]
 class Region:
     def __init__(self, allowed_column_families=None):
         self.rows = defaultdict(lambda: Row(allowed_column_families))
@@ -277,6 +358,11 @@ class Cell:
                 return version["value"]
         return None
 
+    def delete(self, timestamp=None):
+        if timestamp is None:
+            self.versions = []
+        else:
+            self.versions = [version for version in self.versions if version["timestamp"] > timestamp]
 
 class KeyValue:
     def __init__(self, value):
