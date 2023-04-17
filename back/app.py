@@ -207,7 +207,7 @@ def truncate():
 # http://localhost:5000/create?<query>
 
 
-@app.route("/create", methods=["GET"])
+@app.route("/create", methods=["POST"])
 def create():
     try:
 
@@ -258,7 +258,7 @@ def create():
 # http://localhost:5000/List>
 
 
-@app.route("/List", methods=["GET"])
+@app.route("/List", methods=["POST"])
 def List():
     try:
 
@@ -278,7 +278,7 @@ def List():
 # http://localhost:5000/Disable?param1=<table_name>
 
 
-@app.route("/Disable", methods=["GET"])
+@app.route("/Disable", methods=["POST"])
 def Disable():
     try:
 
@@ -299,7 +299,7 @@ def Disable():
 # http://localhost:5000/Enable?param1=<table_name>
 
 
-@app.route("/Enable", methods=["GET"])
+@app.route("/Enable", methods=["POST"])
 def Enable():
     try:
 
@@ -321,7 +321,7 @@ def Enable():
 # http://localhost:5000/Is_Enabled?param1=<table_name>
 
 
-@app.route("/Is_Enabled", methods=["GET"])
+@app.route("/Is_Enabled", methods=["POST"])
 def Is_Enabled():
     try:
 
@@ -342,7 +342,7 @@ def Is_Enabled():
 # http://localhost:5000/Alter?param1=<query>
 
 
-@app.route("/Alter", methods=["GET"])
+@app.route("/Alter", methods=["POST"])
 def Alter():
     try:
 
@@ -382,7 +382,7 @@ def Alter():
 # http://localhost:5000/Describe?param1=<table_name>
 
 
-@app.route("/Describe", methods=["GET"])
+@app.route("/Describe", methods=["POST"])
 def Describe():
     try:
 
@@ -404,7 +404,7 @@ def Describe():
 # http://localhost:5000/Drop?param1=<table_name>
 
 
-@app.route("/Drop", methods=["GET"])
+@app.route("/Drop", methods=["POST"])
 def Drop():
     try:
 
@@ -426,7 +426,7 @@ def Drop():
 # http://localhost:5000/DropAll
 
 
-@app.route("/DropAll", methods=["GET"])
+@app.route("/DropAll", methods=["POST"])
 def DropAll():
     try:
 
