@@ -1,11 +1,12 @@
 from hbase import Master
 
+
 def main():
-    #Instanciacion de cluster
+    # Instanciacion de cluster
     hbase = Master()
-    
+
     """
-    Create
+    Create REVISION [YES/NO]
     Inputs ejemplos (FRONTEND):
         - <nombre_tabla>
         - <nombre_tabla>, {NAME => <nombre_family_column_1>}, {NAME => <nombre_family_column_2>}, ..., {NAME => <nombre_family_column_n>} 
@@ -19,9 +20,9 @@ def main():
     print(hbase.create_table("tabla_ejemplo2", ["column_f_1", "column_f_2"]))
     print(hbase.create_table("table", ["columna_1", "columna_2"]))
     """
-    List
+    List REVISION [YES/NO]
     Inputs ejemplos (FRONTEND):
-        - (nada)
+        - <nombre del archivo>
         - <palabra_con_la_que_inicia_la_tabla_que_desea_listar>
     Parametros de funcion:
         - starts_with: String con el que empieza las tablas que desean listar
@@ -30,9 +31,9 @@ def main():
     """
     print(hbase.ddl_list())
     print(hbase.ddl_list("tabla"))
-    
+
     """
-    Disable
+    Disable REVISION [YES/NO]
     Inputs ejemplos (FRONTEND):
         - <table_name>
     Parametros de funcion:
@@ -43,7 +44,7 @@ def main():
     print(hbase.disable("tabla_ejemplo"))
     print(hbase.disable("tabla_ejemplo2"))
     """
-    Enable
+    Enable REVISION [YES/NO]
     Inputs ejemplos (FRONTEND):
         - <table_name>
     Parametros de funcion:
@@ -52,9 +53,9 @@ def main():
         - Tuple: CODE, message
     """
     print(hbase.enable("tabla_ejemplo"))
-    
+
     """
-    Is_Enabled
+    Is_Enabled REVISION [YES/NO]
     Inputs ejemplos (FRONTEND):
         - <table_name>
     Parametros de funcion:
@@ -64,9 +65,9 @@ def main():
     """
     print(hbase.is_enable("tabla_ejemplo"))
     print(hbase.is_enable("tabla_ejemplo2"))
-    print(hbase.is_enable("table"))    
+    print(hbase.is_enable("table"))
     """
-    Alter
+    Alter REVISION []
     Inputs ejemplos (FRONTEND):
         -   <table_name>, {NAME: <column_family_name>, NEW_NAME: <new_column_family_name>}
         -   <table_name>, {NAME: <column_family_name>, METHOD: delete}
@@ -78,10 +79,11 @@ def main():
     Return: 
         - Tuple: Code, lista (contiene los resultados de las operaciones realizadas)
     """
-    print(hbase.all_alters("tabla_ejemplo", [{"NAME": "column_f_1", "NEW_NAME": "columna_1"}, {"NAME": "column_f_2", "METHOD": "delete"} ]))
-    #Solo para ver cambios
+    print(hbase.all_alters("tabla_ejemplo", [{"NAME": "column_f_1", "NEW_NAME": "columna_1"}, {
+          "NAME": "column_f_2", "METHOD": "delete"}]))
+    # Solo para ver cambios
     """
-    Describe
+    Describe REVISION []
     Inputs ejemplos (FRONTEND):
         - <table_name>
     Parametros de funcion:
@@ -90,9 +92,9 @@ def main():
         - Tuple: CODE, diccionario con informacio de la tabla
     """
     print(hbase.describe("tabla_ejemplo"))
-    
+
     """
-    Drop
+    Drop REVISION []
     Inputs ejemplos (FRONTEND):
         - <table_name>
     Parametros de funcion:
@@ -102,7 +104,7 @@ def main():
     """
     print(hbase.drop("tabla_ejemplo2"))
     """
-    Drop All
+    Drop All REVISION []
     Inputs ejemplos (FRONTEND):
         - (nada)
     Parametros de funcion:
@@ -111,9 +113,8 @@ def main():
         - Tuple: CODE, message
     """
     print(hbase.drop_all())
-    #Comprueba que se borraron
+    # Comprueba que se borraron
     print(hbase.ddl_list())
-    
 
 
 if __name__ == "__main__":

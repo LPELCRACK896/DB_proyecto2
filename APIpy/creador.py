@@ -4,7 +4,7 @@ import json
 # Initialize Faker instance
 fake = Faker()
 count = 0
-lista=[]
+lista = []
 
 # Generate fake purchase data
 while count <= 1000:
@@ -30,7 +30,7 @@ while count <= 1000:
             }
         },
     }
-    count +=1
+    count += 1
     lista.append(purchase_data)
 
 # Create JSON document from purchase data with indentation
