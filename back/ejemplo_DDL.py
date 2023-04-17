@@ -67,7 +67,7 @@ def main():
     print(hbase.is_enable("tabla_ejemplo2"))
     print(hbase.is_enable("table"))
     """
-    Alter REVISION []
+    Alter REVISION [YES/NO]
     Inputs ejemplos (FRONTEND):
         -   <table_name>, {NAME: <column_family_name>, NEW_NAME: <new_column_family_name>}
         -   <table_name>, {NAME: <column_family_name>, METHOD: delete}
@@ -83,7 +83,7 @@ def main():
           "NAME": "column_f_2", "METHOD": "delete"}]))
     # Solo para ver cambios
     """
-    Describe REVISION []
+    Describe REVISION [YES/NO]
     Inputs ejemplos (FRONTEND):
         - <table_name>
     Parametros de funcion:
@@ -94,7 +94,7 @@ def main():
     print(hbase.describe("tabla_ejemplo"))
 
     """
-    Drop REVISION []
+    Drop REVISION [YES/NO]
     Inputs ejemplos (FRONTEND):
         - <table_name>
     Parametros de funcion:
@@ -104,7 +104,7 @@ def main():
     """
     print(hbase.drop("tabla_ejemplo2"))
     """
-    Drop All REVISION []
+    Drop All REVISION [YES/NO]
     Inputs ejemplos (FRONTEND):
         - (nada)
     Parametros de funcion:
