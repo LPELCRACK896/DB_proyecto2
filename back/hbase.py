@@ -7,10 +7,18 @@ class Master:
     def __init__(self):
         self.tables = defaultdict(Table)
 
-    def insert(self, table_name, row_key, column_family, column, value, timestamp=None):
+    def put(self, table_name, row_key, column_family, column, value, timestamp=None):
+        if table_name not in self.tables:
+            return 404, f"Table '{table_name}' does not exist."
+
+        if column_family not in self.tables[table_name].column_families:
+            self.tables[table_name].add_column_family(column_family)
+
         if timestamp is None:
             timestamp = int(time.time() * 1000)
-        self.tables[table_name].insert(row_key, column_family, column, value, timestamp)
+
+        return self.tables[table_name].put(row_key, column_family, column, value, timestamp)
+
 
     def __filtr_ddl_list(self, prefix=None):
         filtered_tables = dict(self.tables)
@@ -39,11 +47,9 @@ class Master:
         column_families = list(set(column_families))
         if table_name in self.tables:
             return 404, f"Table '{table_name}' already exists."
-        try:
-            self.tables[table_name] = Table(column_families)
-            return 200, "Success on creating table."
-        except:
-            return 500, "Error on server."
+        
+        self.tables[table_name] = Table(column_families)
+        return 200, "Success on creating table."
         
     def is_enable(self, table_name):
         if table_name in self.tables:
@@ -67,11 +73,20 @@ class Master:
         with open(json_file_path, 'r') as f:
             data = json.load(f)
 
+        unique_column_families = set()
+        for record in data:
+            for row_key, column_families in record.items():
+                unique_column_families.update(column_families.keys())
+
+        self.create_table(table_name, list(unique_column_families))
+
         for record in data:
             for row_key, column_families in record.items():
                 for column_family, columns in column_families.items():
                     for column, value in columns.items():
-                        self.insert(table_name, row_key, column_family, column, value)
+                        self.put(table_name, row_key, column_family, column, value)
+
+
     
     def rename_alter(self, table_name, column_family, new_name):
         return self.tables[table_name].rename_column_family(column_family, new_name)
@@ -120,17 +135,37 @@ class Master:
         self.tables.clear()
         return 200, "All tables droped"
 
-    def describe(self, table_name) -> dict:
+    def describe(self, table_name) -> tuple:
         if table_name not in self.tables:
             return 400, {"name": table_name, "state": None, "column_families": None}
         table: Table  = self.tables[table_name]
         return 200, {"name": table_name, "state": table.isable, "column_families": table.column_families}
 
+    
+    def scan(self, table_name, start_row=None, stop_row=None, column_family=None, column=None):
+        if table_name not in self.tables:
+            return 404, "Table doesn't exist."
+
+        table = self.tables[table_name]
+        results = {}
+
+        for row_key, row in table.region.rows.items():
+            if (start_row is None or row_key >= start_row) and (stop_row is None or row_key < stop_row):
+                row_data = {}
+                for cf, columns in row.column_families.items():
+                    if column_family is None or cf == column_family:
+                        for col, cell in columns.items():
+                            if column is None or col == column:
+                                row_data[f"{cf}:{col}"] = cell.get()
+                results[row_key] = row_data
+
+        return 200, results
+
 class Table:
     def __init__(self, column_families=None):
-        self.region = Region()
+        self.region = Region(column_families)
         self.column_families = column_families or []
-        self.isable = True
+        self.is_enabled = True
         #Estos valores solo son simbolicos no afectan nada sobre la arquitectura simulada. 
         self.commpresion = None
         self.versions = 1
@@ -140,27 +175,28 @@ class Table:
         self.bloom_filter = None
         
 
-    def insert(self, row_key, column_family, column, value, timestamp):
-        if self.isable:
-            self.region.insert(row_key, column_family, column, value, timestamp)
+    def put(self, row_key, column_family, column, value, timestamp):
+        if self.is_enabled:
+            self.region.put(row_key, column_family, column, value, timestamp)
+            return 200, "Data updated successfully."
         else:
-            return 404, "Enable table to insert data, table is disabled."
+            return 404, "Enable table to put data, table is disabled."
     
     def get(self, row_key, column_family, column):
-        if self.isable:
+        if self.is_enabled:
             return self.region.get(row_key, column_family, column)
         return 404, "Enable table to get, table is disable."
 
     def enable(self):
-        self.isable = True
+        self.is_enabled = True
         return True
         
     def disable(self):
-        self.isable = False
+        self.is_enabled = False
         return True
 
     def is_enable(self):
-        return self.isable
+        return self.is_enabled
 
     def rename_column_family(self, old_name, new_name):
         if old_name not in self.column_families:
@@ -186,25 +222,42 @@ class Table:
                 del row.column_families[column_family]
         return 200, f"Successfully delete column-family: {column_family}"
 
+    def add_column_family(self, column_family):
+        if column_family not in self.column_families:
+            self.column_families.append(column_family)
+
+    def scan(self, start_row, stop_row):
+        if self.isable:
+            return self.region.scan(start_row, stop_row)
+        return 404, "Enable table to scan, table is disabled."
+
 class Region:
-    def __init__(self):
-        self.rows = defaultdict(Row)
+    def __init__(self, allowed_column_families=None):
+        self.rows = defaultdict(lambda: Row(allowed_column_families))
 
-    def insert(self, row_key, column_family, column, value, timestamp):
-        self.rows[row_key].insert(column_family, column, value, timestamp)
+    def put(self, row_key, column_family, column, value, timestamp):
+        self.rows[row_key].put(column_family, column, value, timestamp)
 
+    
     def get(self, row_key, column_family, column):
         return self.rows[row_key].get(column_family, column)
+    
+    def scan(self, start_row, stop_row):
+        return {row_key: row for row_key, row in self.rows.items() if start_row <= row_key < stop_row}
 
 class Row:
-    def __init__(self):
+    def __init__(self, allowed_column_families=None):
         self.column_families = defaultdict(lambda: defaultdict(Cell))
+        self.allowed_column_families = allowed_column_families or []
 
-    def insert(self, column_family, column, value):
-        self.column_families[column_family][column].insert(value)
+    def put(self, column_family, column, value, timestamp):
+        if column_family not in self.allowed_column_families:
+            raise ValueError(f"Column family '{column_family}' is not allowed.")
+        self.column_families[column_family][column].put(value, timestamp)
 
     def get(self, column_family, column):
         return self.column_families[column_family][column].get()
+
 
 class Cell:
     def __init__(self):
