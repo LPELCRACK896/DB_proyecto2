@@ -185,36 +185,65 @@ def Is_Enabled():
         return error
 
 
-# http://localhost:5000/Alter?param1=<query>
+# http://localhost:5000/Describe?param1=<table_name>
 
 
-@app.route("/Alter", methods=["GET"])
-def Is_Enabled():
+@app.route("/Describe", methods=["GET"])
+def Describe():
     try:
 
         input_str = request.args.get('param1')
-        parts = input_str.split(',')
 
-        # Extract the table name
-        table_name = parts.pop(0).strip()
+        value = master.describe(input_str)
 
-        for i in range(0, len(parts), 2):
-            column_family = parts[i].strip().strip('{}')
-            column_family_name = column_family.split(':')[0].strip()
-            column_family_value = column_family.split(':')[1].strip()
+        return value
 
-            column_family_new = parts[i+1].strip().strip('{}')
-            new_family_accion = column_family_new.split(':')[0].strip()
-            column_family_value_new = column_family_new.split(':')[1].strip()
+    except Exception as e:
+        # Return error message if any exception occurs
+        error = {
+            '400',
+            ('error: ' + str(e))
+        }
+        return error
 
-            if(new_family_accion == 'NEW_NAME'):
-                master.alter_table(
-                    table_name, column_family_name, column_family_value_new
-                )
-            elif(new_family_accion == 'METHOD'):
-                master.delete_alter(
-                    table_name, column_family_name
-                )
+
+# http://localhost:5000/Drop?param1=<table_name>
+
+
+@app.route("/Drop", methods=["GET"])
+def Describe():
+    try:
+
+        input_str = request.args.get('param1')
+
+        value = master.drop(input_str)
+
+        return value
+
+    except Exception as e:
+        # Return error message if any exception occurs
+        error = {
+            '400',
+            ('error: ' + str(e))
+        }
+        return error
+
+
+# http://localhost:5000/DropAll
+
+
+@app.route("/DropAll", methods=["GET"])
+def Describe():
+    try:
+
+        master.drop()
+
+        value = {
+            200,
+            'All tables dropped successfully'
+        }
+
+        return value
 
     except Exception as e:
         # Return error message if any exception occurs
