@@ -205,6 +205,7 @@ def truncate():
     return jsonify({"message": "Input string is missing", "status": 400}), 400
 
 # http://localhost:5000/create?<query>
+# ejemplo: "7777, {NAME => 'value1'}, {NAME => 'value2'}
 
 
 @app.route("/create", methods=["GET"])
@@ -256,6 +257,7 @@ def create():
         return error
 
 # http://localhost:5000/List>
+# ejemplo: 8329
 
 
 @app.route("/List", methods=["GET"])
@@ -276,7 +278,7 @@ def List():
 
 
 # http://localhost:5000/Disable?param1=<table_name>
-
+# ejemplo: 8329
 
 @app.route("/Disable", methods=["GET"])
 def Disable():
@@ -297,6 +299,7 @@ def Disable():
         return error
 
 # http://localhost:5000/Enable?param1=<table_name>
+# ejemplo: 8329
 
 
 @app.route("/Enable", methods=["GET"])
@@ -319,7 +322,7 @@ def Enable():
 
 
 # http://localhost:5000/Is_Enabled?param1=<table_name>
-
+# ejemplo: 8329
 
 @app.route("/Is_Enabled", methods=["GET"])
 def Is_Enabled():
@@ -340,6 +343,7 @@ def Is_Enabled():
         return error
 
 # http://localhost:5000/Alter?param1=<query>
+# ejemplo: 8929, {NAME: 'game info', NEW_NAME: 'ejemplo1'}, {NAME: 'purchase info', METHOD: delete}
 
 
 @app.route("/Alter", methods=["GET"])
@@ -380,7 +384,7 @@ def Alter():
 
 
 # http://localhost:5000/Describe?param1=<table_name>
-
+# ejemplo: 8329
 
 @app.route("/Describe", methods=["GET"])
 def Describe():
@@ -402,7 +406,7 @@ def Describe():
 
 
 # http://localhost:5000/Drop?param1=<table_name>
-
+# ejemplo: 8329
 
 @app.route("/Drop", methods=["GET"])
 def Drop():
@@ -424,7 +428,7 @@ def Drop():
 
 
 # http://localhost:5000/DropAll
-
+# ejemplo:
 
 @app.route("/DropAll", methods=["GET"])
 def DropAll():
