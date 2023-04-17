@@ -9,15 +9,15 @@ function DML() {
   const [responseMessage, setResponseMessage] = useState("");
   const apiUrl = "http://127.0.0.1:5000/";
   const command_message = {
-    "put": "Parametros para put",
-    "get": "Parametros para get",
-    "scan": "Parametros para scan",
-    "delete": "Parametros para delete",
-    "deleteall": "Parametros para delete all",
-    "count": "Parametros para count",
-    "truncate": "Parametros para truncate",
-    "updateMany": "Parametros para update many",
-    "insertMany": "Parametros para insert many",
+    "put": "<table_name>,<column_family>:<column>,<value>",
+    "get": "<table_name>,<column_family>:<column>",
+    "scan": "<table_name> o <table_name>,<start_row>,<end_row>", 
+    "delete": "<table_name>,<row_key> o <table_name>,<row_key>,<column_family>",
+    "deleteall": "<table_name> o <table_name>,<start_row>,<end_row>",
+    "count": "<table_name>",
+    "truncate": "<table_name>",
+    "updateMany": "No funciona jajaj",
+    "insertMany": "No funciona jajaj",
   };
   const selectCommand = (buttonText) => {
     setSelectedButton(buttonText);
