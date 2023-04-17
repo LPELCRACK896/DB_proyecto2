@@ -1,5 +1,5 @@
 import './App.css';
-import { Link, useParams } from "react-router-dom";
+import { Link} from "react-router-dom";
 import React, { useState } from "react";
 import axios from "axios";
 
@@ -23,16 +23,29 @@ function DML() {
     setSelectedButton(buttonText);
   };
 
+  // const runCommand = async () => {
+  //   if (!selectedButton) {
+  //     console.error("No command selected");
+  //     return;
+  //   }
+  //   console.log("a")
+  //   try {
+  //     const response = await axios.post(`${apiUrl}${selectedButton}`, { query: inputValue });
+  //     setResponseMessage(JSON.stringify(response.data));
+  //     console.log(response)
+  //   } catch (error) {
+  //     console.error("Error making API request:", error);
+  //     setResponseMessage("Error making API request");
+  //   }
+  // };
   const runCommand = async () => {
     if (!selectedButton) {
       console.error("No command selected");
       return;
     }
-    console.log("a")
     try {
       const response = await axios.post(`${apiUrl}${selectedButton}`, { query: inputValue });
-      setResponseMessage(JSON.stringify(response.data));
-      console.log(response)
+      setResponseMessage(JSON.stringify(response.data, null, 2));
     } catch (error) {
       console.error("Error making API request:", error);
       setResponseMessage("Error making API request");
@@ -102,7 +115,7 @@ function DML() {
       <button className='correr' onClick={runCommand}>
         RUN
       </button>
-      <p className='response-message'>{responseMessage}</p>
+      <pre className='response-message'>{responseMessage}</pre>
       </div>
     </div>
       
