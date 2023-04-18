@@ -229,7 +229,8 @@ def create():
             if cf_match:
                 column_families.append(cf_match.group(1))
             else:
-                response = {"status": 400, "message": f"Invalid column family format: {part}"}
+                response = {"status": 400,
+                            "message": f"Invalid column family format: {part}"}
                 return jsonify(response), response.get('status', 200)
 
         if not column_families:
@@ -237,7 +238,8 @@ def create():
         print(type(table_name), type(column_families))
 
         # Create a dictionary with the table name and column families
-        status_code, success_message = master.create_table(table_name, column_families)
+        status_code, success_message = master.create_table(
+            table_name, column_families)
         response = {"status": status_code, "message": success_message}
         return jsonify(response), response.get('status', 200)
     except Exception as e:
@@ -270,22 +272,25 @@ def List():
 
 @app.route("/disable", methods=["POST"])
 def Disable():
-    try:
 
-        inputNombre = request.json.get('query')
-        print(inputNombre)
-        value = master.disable(inputNombre)
-        print(value)
+    inputNombre = request.json.get('query', None)
+    if inputNombre is None:
+        return jsonify({"Message": "Input string is missing", "status": 400}), 400
+    else:
+        try:
+            input_parts = inputNombre.split(',')
 
-        return value
+            if len(input_parts) != 1:
+                raise ValueError(
+                    "Input string should have 1 value: 'table_name'")
 
-    except Exception as e:
-        # Return error message if any exception occurs
-        error = {
-            '400',
-            ('error: ' + str(e))
-        }
-        return error
+            table_name = input_parts[0]
+            status, message = master.disable(table_name)
+            return {'status': status, 'message': message}
+
+        except Exception as e:
+            return {"message": str(e), "status": 400}
+
 
 # http://localhost:5000/Enable?param1=<table_name>
 # ejemplo: 8329
@@ -293,43 +298,47 @@ def Disable():
 
 @app.route("/enable", methods=["POST"])
 def Enable():
-    try:
+    inputNombre = request.json.get('query', None)
+    if inputNombre is None:
+        return jsonify({"Message": "Input string is missing", "status": 400}), 400
+    else:
+        try:
+            input_parts = inputNombre.split(',')
 
-        inputNombre = request.json.get('query')
+            if len(input_parts) != 1:
+                raise ValueError(
+                    "Input string should have 1 value: 'table_name'")
 
-        value = master.enable(inputNombre)
+            table_name = input_parts[0]
+            status, message = master.enable(table_name)
+            return {'status': status, 'message': message}
 
-        return value
-
-    except Exception as e:
-        # Return error message if any exception occurs
-        error = {
-            '400',
-            ('error: ' + str(e))
-        }
-        return error
-
+        except Exception as e:
+            return {"message": str(e), "status": 400}
 
 # http://localhost:5000/Is_Enabled?param1=<table_name>
 # ejemplo: 8329
 
+
 @app.route("/is_enable", methods=["POST"])
 def Is_Enabled():
-    try:
+    inputNombre = request.json.get('query', None)
+    if inputNombre is None:
+        return jsonify({"Message": "Input string is missing", "status": 400}), 400
+    else:
+        try:
+            input_parts = inputNombre.split(',')
 
-        inputNombre = request.json.get('query')
+            if len(input_parts) != 1:
+                raise ValueError(
+                    "Input string should have 1 value: 'table_name'")
 
-        value = master.is_enabled(inputNombre)
+            table_name = input_parts[0]
+            status, message = master.is_enable(table_name)
+            return {'status': status, 'message': message}
 
-        return value
-
-    except Exception as e:
-        # Return error message if any exception occurs
-        error = {
-            '400',
-            ('error: ' + str(e))
-        }
-        return error
+        except Exception as e:
+            return {"message": str(e), "status": 400}
 
 # http://localhost:5000/Alter?param1=<query>
 # ejemplo: 8929, {NAME: 'game info', NEW_NAME: 'ejemplo1'}, {NAME: 'purchase info', METHOD: delete}
