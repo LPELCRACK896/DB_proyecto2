@@ -23,21 +23,7 @@ function DML() {
     setSelectedButton(buttonText);
   };
 
-  // const runCommand = async () => {
-  //   if (!selectedButton) {
-  //     console.error("No command selected");
-  //     return;
-  //   }
-  //   console.log("a")
-  //   try {
-  //     const response = await axios.post(`${apiUrl}${selectedButton}`, { query: inputValue });
-  //     setResponseMessage(JSON.stringify(response.data));
-  //     console.log(response)
-  //   } catch (error) {
-  //     console.error("Error making API request:", error);
-  //     setResponseMessage("Error making API request");
-  //   }
-  // };
+
   const runCommand = async () => {
     if (!selectedButton) {
       console.error("No command selected");

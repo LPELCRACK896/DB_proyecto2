@@ -33,7 +33,7 @@ function DDL() {
     const command = Object.keys(command_message).find(key => command_message[key] === selectedButton);
     try {
       const response = await axios.post(`${apiUrl}${command}`, { query: inputValue });
-      setResponseMessage(JSON.stringify(response.data));
+      setResponseMessage(JSON.stringify(response.data.message,null,2));
     } catch (error) {
       console.error("Error making API request:", error);
       setResponseMessage("Error making API request");
@@ -103,7 +103,7 @@ function DDL() {
       <button className='correr' onClick={runCommand}>
         RUN
       </button>
-      <p className='response-message'>{responseMessage}</p>
+      <pre className='response-message'>{responseMessage}</pre>
       </div>
     </div>
       
