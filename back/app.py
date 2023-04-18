@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from hbase import Master
 from data_generator import gen_games, gen_purchase
+import re
 
 # gen_games("games.json", 20)
 #gen_purchase("purchases.json", 20)
@@ -211,51 +212,37 @@ def truncate():
 @app.route("/create", methods=["POST"])
 def create():
     try:
-
         input_str = request.json.get('query')
         print(input_str)
 
         # Split the input string into parts
         parts = input_str.split(',')
-
-        # Extract the table name
-        table_name = parts[0].strip()
-
-        # Extract the column families
+        table_name = parts.pop(0)
         column_families = []
 
-        for part in parts[1:]:
-            column_family = part.strip().strip('{}')
+        # Regular expression to match column family
+        cf_pattern = re.compile(r'{NAME=>([^}]+)}')
 
-            if("=>" in column_family):
-                column_family_name = column_family.split('=>')[0].strip()
-                column_family_value = column_family.split('=>')[1].strip()
-                column_families.append(
-                    {column_family_name: column_family_value})
-
+        # Extract column families
+        for part in parts:
+            cf_match = cf_pattern.match(part.strip())
+            if cf_match:
+                column_families.append(cf_match.group(1))
             else:
-                error = {
-                    '400',
-                    ('error: no se puede leer el query, revisa que contenga =>')
-                }
-                return error
+                response = {"status": 400, "message": f"Invalid column family format: {part}"}
+                return jsonify(response), response.get('status', 200)
+
+        if not column_families:
+            column_families = ["cf"]
+        print(type(table_name), type(column_families))
 
         # Create a dictionary with the table name and column families
-        master.create_table(table_name, column_families)
-
-        regresar = {
-            200,
-            'Data processed successfully'
-        }
-        return regresar
-
+        status_code, success_message = master.create_table(table_name, column_families)
+        response = {"status": status_code, "message": success_message}
+        return jsonify(response), response.get('status', 200)
     except Exception as e:
-        # Return error message if any exception occurs
-        error = {
-            '400',
-            ('error: ' + str(e))
-        }
-        return error
+        response = {"status": 400, "message": f"Error: {str(e)}"}
+        return jsonify(response), response.get('status', 200)
 
 # http://localhost:5000/List>
 # ejemplo: 8329
