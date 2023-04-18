@@ -54,7 +54,7 @@ class Master:
 
     def is_enable(self, table_name):
         if table_name in self.tables:
-            return 200, f"Table {table_name} is enable." if self.tables[table_name].isable else f"Table {table_name} is disabled."
+            return 200, f"Table {table_name} is enable." if self.tables[table_name].is_enable else f"Table {table_name} is disabled."
         else:
             return 400, f"Table {table_name} doesn't exist"
 
@@ -141,7 +141,7 @@ class Master:
         if table_name not in self.tables:
             return 400, {"name": table_name, "state": None, "column_families": None}
         table: Table = self.tables[table_name]
-        return 200, {"name": table_name, "state": table.isable, "column_families": table.column_families}
+        return 200, {"name": table_name, "state": table.is_enable, "column_families": table.column_families}
 
     def scan(self, table_name, start_row=None, stop_row=None, column_family=None, column=None):
         if table_name not in self.tables:
