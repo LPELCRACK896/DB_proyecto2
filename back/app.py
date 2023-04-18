@@ -252,9 +252,9 @@ def create():
 def List():
     try:
 
-        list = master.ddl_list()
-
-        return list
+        status, message = master.ddl_list()
+        response = {"status": status, "message": message}
+        return  jsonify(response), response.get('status', 200)
 
     except Exception as e:
         # Return error message if any exception occurs
@@ -381,17 +381,15 @@ def Describe():
 
         input_str = request.json.get('query')
 
-        value = master.describe(input_str)
-
-        return value
+        status, message = master.describe(input_str)
+        response = {"status": status, "message": message}
+        print(response)
+        return  jsonify(response), response.get('status', 200)
 
     except Exception as e:
         # Return error message if any exception occurs
-        error = {
-            '400',
-            ('error: ' + str(e))
-        }
-        return error
+        response = {"status": 400, "message": "Error on request"}
+        return  jsonify(response), response.get('status', 200)
 
 
 # http://localhost:5000/Drop?param1=<table_name>
@@ -403,17 +401,14 @@ def Drop():
 
         input_str = request.json.get('query')
 
-        value = master.drop(input_str)
-
-        return value
+        status, message = master.drop(input_str)
+        response = {"status": status, "message": message}
+        return  jsonify(response), response.get('status', 200)
 
     except Exception as e:
         # Return error message if any exception occurs
-        error = {
-            '400',
-            ('error: ' + str(e))
-        }
-        return error
+        response = {"status": 501, "message": "Server error. py"}
+        return  jsonify(response), response.get('status', 200)
 
 
 # http://localhost:5000/DropAll
@@ -422,23 +417,13 @@ def Drop():
 @app.route("/dropall", methods=["POST"])
 def DropAll():
     try:
-
-        master.drop()
-
-        value = {
-            200,
-            'All tables dropped successfully'
-        }
-
-        return value
-
+        status, message = master.drop_all()
+        response = {"status": status, "message": message}
+        return  jsonify(response), response.get('status', 200)
     except Exception as e:
         # Return error message if any exception occurs
-        error = {
-            '400',
-            ('error: ' + str(e))
-        }
-        return error
+        response = {"status": 500, "message": "message"}
+        return  jsonify(response), response.get('status', 200)
 
 
 if __name__ == "__main__":

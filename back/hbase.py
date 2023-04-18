@@ -35,7 +35,7 @@ class Master:
         """
         Seccion para parsear la info de las tablas en un solo string. 
         """
-        return list(filtred_tables.keys())
+        return 200 , list(filtred_tables.keys())
 
     def get(self, table_name, row_key, column_family, column):
         try:
@@ -132,7 +132,7 @@ class Master:
         if table_name not in self.tables:
             return 400, "Table doesn't exist."
         del self.tables[table_name]
-        return 200, "Table {table_name} dropped correctly."
+        return 200, f"Table {table_name} dropped correctly."
 
     def drop_all(self):
         self.tables.clear()
@@ -142,7 +142,7 @@ class Master:
         if table_name not in self.tables:
             return 400, {"name": table_name, "state": None, "column_families": None}
         table: Table = self.tables[table_name]
-        return 200, {"name": table_name, "state": table.is_enable, "column_families": table.column_families}
+        return 200, {"name": table_name, "state": table.is_enabled, "column_families": table.column_families}
 
     def scan(self, table_name, start_row=None, stop_row=None, column_family=None, column=None):
         if table_name not in self.tables:
