@@ -15,22 +15,22 @@ def gen_purchase(filename, total = 100):
     while count < total:
         purchase_data = {
             fake.random_int(min=1000, max=9999): {
-                'customer info': {
+                'customer_info': {
                     'Name': fake.name(),
                     'Age': fake.random_int(min=18, max=80, step=1),
                     'Address': fake.address(),
                     'Email': fake.email(),
                     'Phone Number': fake.phone_number(),
                 },
-                'purchase info': {
+                'purchase_info': {
                     'Date': fake.date_between(start_date='-1y', end_date='today').strftime('%Y-%m-%d'),
                     'Time': fake.time(),
                     'Total Price': fake.pyfloat(left_digits=2, right_digits=2, positive=True),
                     'Payment Type': fake.random_element(elements=('Credit Card', 'Debit Card', 'Cash')),
                 },
-                'product info': {
-                    'Product ID': fake.random_int(min=1000, max=9999, step=1),
-                    'Product Name': fake.word(),
+                'product_info': {
+                    'Product_ID': fake.random_int(min=1000, max=9999, step=1),
+                    'Product_Name': fake.word(),
                     'Quantity': fake.random_int(min=1, max=10, step=1),
                 }
             },
@@ -60,18 +60,18 @@ def gen_games(filename, total = 100):
         }
         game = {
             fake.random_int(min=1000, max=9999): {
-                'game info': {
+                'game_info': {
                     'Name': fake.word(),
                     'Genre': fake.word(),
                     'Plataform': fake.random_element(elements=('PC', 'PS4', 'Xbox One', 'Nintendo Switch')),
                     'Release_year': fake.random_int(min=2000, max=2023),
                     "price": fake.pyfloat(left_digits=2, right_digits=2, positive=True)
                 },
-                'Dev info': {
+                'Dev_info': {
                     'Company': fake.company(),
                     'Workers': fake.random_int(min=1000, max=9999),
                 },
-                'product info': {
+                'product_info': {
                     'Product ID': fake.random_int(min=1000, max=9999, step=1),
                     'Product description': fake.sentence(nb_words=10),
                 }

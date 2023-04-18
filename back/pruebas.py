@@ -6,6 +6,7 @@ def main():
     hbase = Master()
     hbase.load_data_from_json("Sales", "./back/purchases.json")
     hbase.load_data_from_json("Games", "./back/games.json")
+    print(hbase.get("Sales", "6492","customer_info", "Name"))
     print("---Sales---")
     print(hbase.scan("Sales")[1])
     print("\t\t")

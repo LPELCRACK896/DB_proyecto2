@@ -39,10 +39,18 @@ class Master:
 
     def get(self, table_name, row_key, column_family, column):
         try:
+            print(f"Debug: table_name: {table_name}, row_key: {row_key}, column_family: {column_family}, column: {column}")  # Debugging
+            table_name = str(table_name).replace(" ", "")
+            row_key = str(row_key).replace(" ", "")
+            column_family = str(column_family).replace(" ", "")
+            column = str(column).replace(" ", "")
             data = self.tables[table_name].get(row_key, column_family, column)
+            print(f"Debug: data: {data}")  # Debugging
             return 200, data
-        except:
+        except Exception as e:
+            print(f"Debug: Exception: {e}")  # Debugging
             return 500, "Error on server."
+
 
     def create_table(self, table_name: str, column_families: list = ["cf"]):
         column_families = list(set(column_families))
@@ -55,7 +63,7 @@ class Master:
 
     def is_enable(self, table_name):
         if table_name in self.tables:
-            return 200, f"Table {table_name} is enable." if self.tables[table_name].is_enable else f"Table {table_name} is disabled."
+            return 200, f"Table {table_name} is enable." if self.tables[table_name].is_enabled else f"Table {table_name} is disabled."
         else:
             return 400, f"Table {table_name} doesn't exist"
 
@@ -260,6 +268,7 @@ class Table:
             return 400, "Enable table to put data, table is disabled."
 
     def get(self, row_key, column_family, column):
+
         if self.is_enabled:
             return self.region.get(row_key, column_family, column)
         return 400, "Enable table to get, table is disable."

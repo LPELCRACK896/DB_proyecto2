@@ -46,7 +46,7 @@ def process_get(input_str):
 
         table_name, row_key, column_family_qualifier = input_parts[:3]
         column_family, column_qualifier = column_family_qualifier.split(':')
-
+        print(table_name, row_key, column_family, column_qualifier)
         status, message = master.get(
             table_name, row_key, column_family, column_qualifier)
         return {'status': status, 'message': message}
@@ -155,6 +155,7 @@ def put():
 @app.route('/get', methods=['POST'])
 def get():
     input_str = request.json.get('query', None)
+    print(input_str)
     if input_str:
         response = process_get(input_str)
         return jsonify(response), response.get('status', 200)
@@ -332,7 +333,7 @@ def Is_Enabled():
             if len(input_parts) != 1:
                 raise ValueError(
                     "Input string should have 1 value: 'table_name'")
-
+            
             table_name = input_parts[0]
             status, message = master.is_enable(table_name)
             return {'status': status, 'message': message}
