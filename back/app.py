@@ -341,7 +341,7 @@ def Is_Enabled():
             return {"message": str(e), "status": 400}
 
 # http://localhost:5000/Alter?param1=<query>
-# ejemplo: 8929, {NAME: 'game info', NEW_NAME: 'ejemplo1'}, {NAME: 'purchase info', METHOD: delete}
+# ejemplo: Sales,{NAME:customer info,NEW_NAME:idontknow}
 
 
 @app.route("/alter", methods=["POST"])
@@ -388,7 +388,7 @@ def Alter():
 def Describe():
     try:
 
-        input_str = request.json.get('query')
+        input_str = request.json.get('query', None)
 
         status, message = master.describe(input_str)
         response = {"status": status, "message": message}
