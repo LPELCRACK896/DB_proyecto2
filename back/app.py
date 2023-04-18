@@ -283,22 +283,17 @@ def List():
 
 @app.route("/disable", methods=["POST"])
 def Disable():
-    try:
 
-        inputNombre = request.json.get('query')
-        print(inputNombre)
-        value = master.disable(inputNombre)
-        print(value)
-
-        return value
-
-    except Exception as e:
-        # Return error message if any exception occurs
+    inputNombre = request.json.get('query', None)
+    if inputNombre is None:
         error = {
             '400',
-            ('error: ' + str(e))
+            ('error: No tenemos nombre de tabla')
         }
         return error
+    value = master.disable(inputNombre)
+    return value
+
 
 # http://localhost:5000/Enable?param1=<table_name>
 # ejemplo: 8329
@@ -322,27 +317,29 @@ def Enable():
         }
         return error
 
-
 # http://localhost:5000/Is_Enabled?param1=<table_name>
 # ejemplo: 8329
 
+
 @app.route("/is_enable", methods=["POST"])
 def Is_Enabled():
-    try:
+    inputNombre = request.json.get('query', None)
+    if inputNombre is None:
+        return jsonify({"Message": "Input string is missing", "status": 400}), 400
+    else:
+        try:
+            input_parts = inputNombre.split(',')
 
-        inputNombre = request.json.get('query')
+            if len(input_parts) != 1:
+                raise ValueError(
+                    "Input string should have 1 value: 'table_name'")
 
-        value = master.is_enabled(inputNombre)
+            table_name = input_parts[0]
+            status, message = master.is_enabled(table_name)
+            return {'status': status, 'message': message}
 
-        return value
-
-    except Exception as e:
-        # Return error message if any exception occurs
-        error = {
-            '400',
-            ('error: ' + str(e))
-        }
-        return error
+        except Exception as e:
+            return {"message": str(e), "status": 400}
 
 # http://localhost:5000/Alter?param1=<query>
 # ejemplo: 8929, {NAME: 'game info', NEW_NAME: 'ejemplo1'}, {NAME: 'purchase info', METHOD: delete}
