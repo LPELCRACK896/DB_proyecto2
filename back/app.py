@@ -334,7 +334,7 @@ def Is_Enabled():
                     "Input string should have 1 value: 'table_name'")
 
             table_name = input_parts[0]
-            status, message = master.is_enabled(table_name)
+            status, message = master.is_enable(table_name)
             return {'status': status, 'message': message}
 
         except Exception as e:
