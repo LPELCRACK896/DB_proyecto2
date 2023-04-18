@@ -257,7 +257,7 @@ def List():
 
         status, message = master.ddl_list()
         response = {"status": status, "message": message}
-        return  jsonify(response), response.get('status', 200)
+        return jsonify(response), response.get('status', 200)
 
     except Exception as e:
         # Return error message if any exception occurs
@@ -333,7 +333,7 @@ def Is_Enabled():
             if len(input_parts) != 1:
                 raise ValueError(
                     "Input string should have 1 value: 'table_name'")
-            
+
             table_name = input_parts[0]
             status, message = master.is_enable(table_name)
             return {'status': status, 'message': message}
@@ -394,12 +394,12 @@ def Describe():
         status, message = master.describe(input_str)
         response = {"status": status, "message": message}
         print(response)
-        return  jsonify(response), response.get('status', 200)
+        return jsonify(response), response.get('status', 200)
 
     except Exception as e:
         # Return error message if any exception occurs
         response = {"status": 400, "message": "Error on request"}
-        return  jsonify(response), response.get('status', 200)
+        return jsonify(response), response.get('status', 200)
 
 
 # http://localhost:5000/Drop?param1=<table_name>
@@ -411,14 +411,23 @@ def Drop():
 
         input_str = request.json.get('query')
 
-        status, message = master.drop(input_str)
-        response = {"status": status, "message": message}
-        return  jsonify(response), response.get('status', 200)
+        if(input_str is None):
+            return jsonify({"Message": "Input string is missing", "status": 400}), 400
+
+        statusTemp, messageTemp = master.is_enable(input_str)
+        temp = messageTemp.split(' ')
+        lastTemp = temp[temp.__len__()-1]
+        if(lastTemp == 'enable.'):
+            status, message = master.drop(input_str)
+            response = {"status": status, "message": message}
+            return jsonify(response), response.get('status', 200)
+        else:
+            return jsonify({"status": 400, "message": "Cant drop table, table is disabled"})
 
     except Exception as e:
         # Return error message if any exception occurs
         response = {"status": 501, "message": "Server error. py"}
-        return  jsonify(response), response.get('status', 200)
+        return jsonify(response), response.get('status', 200)
 
 
 # http://localhost:5000/DropAll
@@ -429,11 +438,11 @@ def DropAll():
     try:
         status, message = master.drop_all()
         response = {"status": status, "message": message}
-        return  jsonify(response), response.get('status', 200)
+        return jsonify(response), response.get('status', 200)
     except Exception as e:
         # Return error message if any exception occurs
         response = {"status": 500, "message": "message"}
-        return  jsonify(response), response.get('status', 200)
+        return jsonify(response), response.get('status', 200)
 
 
 if __name__ == "__main__":
