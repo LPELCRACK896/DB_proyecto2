@@ -46,10 +46,11 @@ class Master:
 
     def create_table(self, table_name: str, column_families: list = ["cf"]):
         column_families = list(set(column_families))
+        print(table_name, column_families)
         if table_name in self.tables:
             return 400, f"Table '{table_name}' already exists."
-
         self.tables[table_name] = Table(column_families)
+        print(self.tables)
         return 200, "Success on creating table."
 
     def is_enable(self, table_name):
