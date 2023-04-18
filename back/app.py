@@ -212,7 +212,7 @@ def truncate():
 def create():
     try:
 
-        input_str = request.args.get('query')
+        input_str = request.json.get('query')
         print(input_str)
 
         # Split the input string into parts
@@ -285,9 +285,10 @@ def List():
 def Disable():
     try:
 
-        inputNombre = request.args.get('query')
-
+        inputNombre = request.json.get('query')
+        print(inputNombre)
         value = master.disable(inputNombre)
+        print(value)
 
         return value
 
@@ -307,7 +308,7 @@ def Disable():
 def Enable():
     try:
 
-        inputNombre = request.args.get('query')
+        inputNombre = request.json.get('query')
 
         value = master.enable(inputNombre)
 
@@ -329,7 +330,7 @@ def Enable():
 def Is_Enabled():
     try:
 
-        inputNombre = request.args.get('query')
+        inputNombre = request.json.get('query')
 
         value = master.is_enabled(inputNombre)
 
@@ -351,7 +352,7 @@ def Is_Enabled():
 def Alter():
     try:
 
-        input_str = request.args.get('query')
+        input_str = request.json.get('query')
         parts = input_str.split(',')
 
         # Extract the table name
@@ -391,7 +392,7 @@ def Alter():
 def Describe():
     try:
 
-        input_str = request.args.get('query')
+        input_str = request.json.get('query')
 
         value = master.describe(input_str)
 
@@ -413,7 +414,7 @@ def Describe():
 def Drop():
     try:
 
-        input_str = request.args.get('query')
+        input_str = request.json.get('query')
 
         value = master.drop(input_str)
 
