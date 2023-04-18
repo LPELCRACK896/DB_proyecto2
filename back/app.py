@@ -346,14 +346,16 @@ def Is_Enabled():
 
 @app.route("/alter", methods=["POST"])
 def Alter():
+    inputUser = request.json.get('query', None)
     try:
+        if(inputUser is None):
+            return jsonify({"Message": "Input string is missing", "status": 400}), 400
 
-        input_str = request.json.get('query')
-        parts = input_str.split(',')
-
-        # Extract the table name
+        parts = inputUser.split(',')
         table_name = parts.pop(0).strip()
 
+        temp = {}
+        temp2 = []
         for i in range(0, len(parts), 2):
             column_family = parts[i].strip().strip('{}')
             column_family_name = column_family.split(':')[0].strip()
@@ -363,14 +365,12 @@ def Alter():
             new_family_accion = column_family_new.split(':')[0].strip()
             column_family_value_new = column_family_new.split(':')[1].strip()
 
-            if(new_family_accion == 'NEW_NAME'):
-                master.alter_table(
-                    table_name, column_family_name, column_family_value_new
-                )
-            elif(new_family_accion == 'METHOD'):
-                master.delete_alter(
-                    table_name, column_family_name
-                )
+            temp = {column_family_name: column_family_value,
+                    new_family_accion: column_family_value_new}
+            temp2.append(temp)
+
+        status, message = master.all_alters(table_name, temp2)
+        return {'status': status, 'message': message}
 
     except Exception as e:
         # Return error message if any exception occurs
