@@ -11,8 +11,7 @@ master = Master()
 master.load_data_from_json("Sales", "./back/purchases.json")
 master.load_data_from_json(
     "Games", "./back/games.json")
-master.load_data_from_json(
-    "Test", "./back/Test.json")  # Create the Flask app
+  # Create the Flask app
 app = Flask(__name__)
 CORS(app)  # Add this line to enable CORS for all routes
 
